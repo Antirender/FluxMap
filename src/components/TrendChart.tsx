@@ -33,6 +33,23 @@ export function TrendChart() {
   const first = timelineData[0].date;
   const last = timelineData[timelineData.length - 1].date;
 
+  /** Format GDELT datetime like 20260216T171500Z → "Feb 16, 5:15 PM" */
+  const fmtLabel = (raw: string) => {
+    try {
+      const d = new Date(
+        raw.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/, '$1-$2-$3T$4:$5:$6Z'),
+      );
+      return d.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    } catch {
+      return raw;
+    }
+  };
+
   return (
     <div className="trend-chart">
       <div className="tc-header">
@@ -54,8 +71,8 @@ export function TrendChart() {
       </svg>
 
       <div className="tc-labels">
-        <span>{first}</span>
-        <span>{last}</span>
+        <span>{fmtLabel(first)}</span>
+        <span>{fmtLabel(last)}</span>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import './ArticleEvidence.css';
 export function ArticleEvidence() {
   const articles = useStore((s) => s.articles);
   const selectedLocation = useStore((s) => s.selectedLocation);
+  const setSelectedLocation = useStore((s) => s.setSelectedLocation);
   const activeChannel = useStore((s) => s.activeChannel);
 
   const displayed = useMemo(() => {
@@ -49,7 +50,18 @@ export function ArticleEvidence() {
         <h3>
           {selectedLocation ? `Articles — ${selectedLocation}` : 'Latest Articles'}
         </h3>
-        <span className="ae-count">{displayed.length}</span>
+        <div className="ae-header-actions">
+          {selectedLocation && (
+            <button
+              className="ae-reset-btn"
+              onClick={() => setSelectedLocation(null)}
+              title="Back to all articles"
+            >
+              ↩ Overview
+            </button>
+          )}
+          <span className="ae-count">{displayed.length}</span>
+        </div>
       </div>
 
       <div className="ae-list">

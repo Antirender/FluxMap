@@ -61,13 +61,14 @@
 }
 
 .explore-trend {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  max-height: 200px;
 }
 
 .explore-toplist {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .explore-articles {
@@ -139,6 +140,29 @@
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
   }
+}
+
+/* ── global reset button ── */
+.explore-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.explore-reset-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ── map legend ── */

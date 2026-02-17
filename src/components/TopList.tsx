@@ -16,7 +16,18 @@ export function TopList() {
     <div className="top-list">
       <div className="tl-header">
         <h3>Top Locations</h3>
-        <span className="tl-count">{topLocations.length}</span>
+        <div className="tl-header-actions">
+          {selectedLocation && (
+            <button
+              className="tl-reset-btn"
+              onClick={() => setSelectedLocation(null)}
+              title="Clear selection"
+            >
+              ✕
+            </button>
+          )}
+          <span className="tl-count">{topLocations.length}</span>
+        </div>
       </div>
 
       <div className="tl-items">

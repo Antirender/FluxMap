@@ -29,6 +29,33 @@
   border-radius: 10px;
 }
 
+.tl-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tl-reset-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tl-reset-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .tl-items {
   flex: 1;
   overflow-y: auto;

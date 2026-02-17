@@ -30,7 +30,12 @@ export function Explore() {
   const timeWindow = useStore((s) => s.timeWindow);
   const activeChannel = useStore((s) => s.activeChannel);
   const searchQuery = useStore((s) => s.searchQuery);
+  const selectedLocation = useStore((s) => s.selectedLocation);
+  const setSelectedLocation = useStore((s) => s.setSelectedLocation);
+  const setSearchQuery = useStore((s) => s.setSearchQuery);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const hasFilters = !!selectedLocation || !!searchQuery;
 
   /* initial fetch + auto-refresh 60 s */
   useEffect(() => {
@@ -56,6 +61,18 @@ export function Explore() {
         <div className="explore-toolbar-right">
           <TimeWindowSwitcher />
           <SearchInput />
+          {hasFilters && (
+            <button
+              className="explore-reset-btn"
+              onClick={() => {
+                setSelectedLocation(null);
+                setSearchQuery('');
+              }}
+              title="Reset to overview"
+            >
+              ↩ Reset
+            </button>
+          )}
           <LastUpdated />
         </div>
       </div>

@@ -120,19 +120,22 @@ export async function fetchGeoData(
       return [];
     }
     const json = JSON.parse(text) as GeoApiResponse;
-    const features: GeoFeature[] = (json.features ?? []).map((f, i) => {
-      const p = f.properties ?? ({} as Record<string, unknown>);
-      return {
-        type: 'Feature' as const,
-        geometry: f.geometry,
-        properties: {
-          name: (p.name as string) ?? `Point ${i}`,
-          count: Number(p.count ?? p.nbarts ?? 1),
-          shareimage: (p.shareimage as string) ?? '',
-          html: (p.html as string) ?? '',
-        },
-      };
-    });
+    const features: GeoFeature[] = (json.features ?? [])
+      .map((f, i) => {
+        const p = f.properties ?? ({} as Record<string, unknown>);
+        return {
+          type: 'Feature' as const,
+          geometry: f.geometry,
+          properties: {
+            name: (p.name as string) ?? `Point ${i}`,
+            count: Number(p.count ?? p.nbarts ?? 1),
+            shareimage: (p.shareimage as string) ?? '',
+            html: (p.html as string) ?? '',
+          },
+        };
+      })
+      // Filter out GDELT error messages returned as feature names
+      .filter((f) => !f.properties.name.startsWith('ERROR'));
     console.debug(`[FluxMap] GEO → ${features.length} features`);
     setCache(cacheKey, features);
     return features;
@@ -180,6 +183,14 @@ export async function fetchArticles(
       return [];
     }
     const json = JSON.parse(text) as DocArtListResponse;
+    // Detect GDELT error responses embedded in article data
+    if (!json.articles && typeof json === 'object') {
+      const raw = JSON.stringify(json);
+      if (raw.includes('ERROR') || raw.includes('error')) {
+        console.warn('[FluxMap] DOC ArtList returned error payload:', raw.slice(0, 200));
+        return [];
+      }
+    }
     const articles: GdeltArticle[] = (json.articles ?? []).map((a) => ({
       url: a.url ?? '',
       url_mobile: a.url_mobile ?? '',
