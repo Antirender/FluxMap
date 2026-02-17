@@ -1,0 +1,142 @@
+/* ── Story / Scrollytelling ── */
+.story-page {
+  position: relative;
+  width: 100%;
+  background: var(--bg-body, #0a0a0f);
+}
+
+.story-map-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.story-map-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.story-scroller {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── step ── */
+.story-step {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 60px 5vw;
+  opacity: .2;
+  transition: opacity .5s ease;
+}
+
+.story-step.active {
+  opacity: 1;
+}
+
+.story-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 44px 40px;
+  max-width: 520px;
+  box-shadow: var(--shadow);
+}
+
+.story-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.story-card h2 {
+  margin: 0 0 18px 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-heading);
+  line-height: 1.2;
+}
+
+.story-card p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* ── CTA button ── */
+.story-cta {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 14px 32px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all .25s;
+  box-shadow: var(--glow);
+}
+
+.story-cta:hover {
+  background: var(--accent-press);
+  transform: translateY(-2px);
+}
+
+/* tip callout inside story card */
+.story-tip {
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-bg, rgba(14, 165, 233, 0.08));
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* data source badge (bottom-right of story page) */
+.story-source {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 2;
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .story-step {
+    padding: 40px 16px;
+    justify-content: center;
+  }
+
+  .story-card {
+    padding: 32px 24px;
+    max-width: 92%;
+  }
+
+  .story-card h2 {
+    font-size: 24px;
+  }
+
+  .story-card p {
+    font-size: 15px;
+  }
+}

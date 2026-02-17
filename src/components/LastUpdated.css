@@ -1,0 +1,36 @@
+.last-updated {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.pulse-dot.loading {
+  background: var(--yellow);
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.lu-label {
+  font-weight: 500;
+}
+
+.lu-time {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-primary);
+  font-weight: 600;
+}

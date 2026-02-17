@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/gdelt-geo", "destination": "/api/gdelt-geo" },
+    { "source": "/api/gdelt-doc", "destination": "/api/gdelt-doc" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

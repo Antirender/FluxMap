@@ -1,0 +1,137 @@
+/**
+ * Global styles – FluxMap theming via CSS custom properties
+ */
+
+/* ── Theme tokens ── */
+:root,
+[data-theme="dark"] {
+  --bg-body: #0a0a0f;
+  --bg-surface: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-card: rgba(15, 23, 42, 0.88);
+  --bg-input: #1e293b;
+  --border: #1e293b;
+  --border-subtle: #334155;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-dim: #475569;
+  --text-heading: #f1f5f9;
+  --text-chip: #cbd5e1;
+  --accent: #0ea5e9;
+  --accent-hover: #38bdf8;
+  --accent-bg: rgba(14, 165, 233, 0.1);
+  --accent-press: #0284c7;
+  --code-bg: #1e293b;
+  --code-color: #7dd3fc;
+  --hover-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(148, 163, 184, 0.12);
+  --map-dim: rgba(10, 10, 15, 0.35);
+  --scrollbar-track: #0f172a;
+  --scrollbar-thumb: #334155;
+  --scrollbar-thumb-hover: #475569;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --glow: 0 4px 16px rgba(14, 165, 233, 0.35);
+  --ae-card-bg: #0f172a;
+  --green: #22c55e;
+  --yellow: #eab308;
+}
+
+[data-theme="light"] {
+  --bg-body: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-input: #f1f5f9;
+  --border: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-dim: #cbd5e1;
+  --text-heading: #0f172a;
+  --text-chip: #334155;
+  --accent: #0284c7;
+  --accent-hover: #0369a1;
+  --accent-bg: rgba(2, 132, 199, 0.08);
+  --accent-press: #014d6e;
+  --code-bg: #f1f5f9;
+  --code-color: #0284c7;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --card-border: rgba(203, 213, 225, 0.5);
+  --map-dim: rgba(248, 250, 252, 0.25);
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  --glow: 0 4px 16px rgba(2, 132, 199, 0.15);
+  --ae-card-bg: #ffffff;
+  --green: #16a34a;
+  --yellow: #ca8a04;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-body);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco,
+    Consolas, 'Courier New', monospace;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ── transitions ── */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 0.15s ease;
+}
+
+/* ── focus ring ── */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

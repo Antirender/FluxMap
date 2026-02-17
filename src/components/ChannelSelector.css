@@ -1,0 +1,41 @@
+.channel-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.channel-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-chip);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.channel-chip:hover {
+  border-color: var(--text-muted);
+  background: var(--border-subtle);
+  color: var(--text-heading);
+}
+
+.channel-chip.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.channel-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.channel-label {
+  line-height: 1;
+}
