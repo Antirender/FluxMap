@@ -17,7 +17,6 @@ import {
   fetchGeoData,
   fetchArticles,
   fetchTimeline,
-  deriveTopLocations,
 } from './data/gdeltApi';
 import {
   getDemoGeo,
@@ -25,6 +24,8 @@ import {
   getDemoTimeline,
   getDemoTopLocations,
 } from './data/demoData';
+import { fetchAllData } from './data/providerChain';
+import type { StoryStepData } from './data/storyData';
 
 /** Toast-style error that auto-dismisses */
 export interface AppError {
@@ -60,6 +61,7 @@ interface AppState {
   isLoading: boolean;
   lastUpdated: number;
   usingDemoData: boolean;
+  dataSource: 'gdelt' | 'newsdata' | 'cache' | 'demo' | null;
   errors: AppError[];
   pushError: (msg: string) => void;
   dismissError: (id: number) => void;
@@ -69,6 +71,8 @@ interface AppState {
 
   /* ---- Actions ---- */
   refreshData: () => Promise<void>;
+  /** Inject pre-built static data (for Story page — no API needed) */
+  injectStoryData: (data: StoryStepData) => void;
   /** Prefetch adjacent time windows in the background */
   prefetchNeighbors: () => void;
 }
@@ -103,6 +107,7 @@ export const useStore = create<AppState>((set, get) => ({
   isLoading: false,
   lastUpdated: Date.now(),
   usingDemoData: false,
+  dataSource: null,
 
   /* ---- error toasts ---- */
   errors: [],
@@ -121,64 +126,51 @@ export const useStore = create<AppState>((set, get) => ({
   selectedLocation: null,
   setSelectedLocation: (name) => set({ selectedLocation: name }),
 
+  injectStoryData: (data) => {
+    set({
+      geoFeatures: data.geo,
+      articles: data.articles,
+      timelineData: data.timeline,
+      topLocations: data.topLocations,
+      lastUpdated: Date.now(),
+      usingDemoData: false,
+      isLoading: false,
+    });
+  },
+
   refreshData: async () => {
     const { activeChannel, timeWindow, searchQuery, pushError } = get();
     set({ isLoading: true });
 
     try {
-      // Promise.allSettled — one failure won't kill the rest
-      const [geoResult, artsResult, tlResult] = await Promise.allSettled([
-        fetchGeoData(activeChannel.query, timeWindow, searchQuery),
-        fetchArticles(activeChannel.query, timeWindow, searchQuery),
-        fetchTimeline(activeChannel.query, timeWindow, searchQuery),
-      ]);
+      // Multi-source provider chain: GDELT → NewsData.io → cache → demo
+      const result = await fetchAllData(
+        activeChannel.id,
+        activeChannel.query,
+        timeWindow,
+        searchQuery,
+      );
 
-      const geo = geoResult.status === 'fulfilled' ? geoResult.value : [];
-      const arts = artsResult.status === 'fulfilled' ? artsResult.value : [];
-      const tl = tlResult.status === 'fulfilled' ? tlResult.value : [];
+      const isDemoOrCache = result.source === 'demo' || result.source === 'cache';
 
-      // Count how many actually returned data
-      const hasGeo = geo.length > 0;
-      const hasArts = arts.length > 0;
-      const hasTl = tl.length > 0;
-      const allEmpty = !hasGeo && !hasArts && !hasTl;
-
-      // Report individual failures without crashing
-      if (geoResult.status === 'rejected') {
-        console.error('[FluxMap] GEO failed:', geoResult.reason);
-      }
-      if (artsResult.status === 'rejected') {
-        console.error('[FluxMap] Articles failed:', artsResult.reason);
-      }
-      if (tlResult.status === 'rejected') {
-        console.error('[FluxMap] Timeline failed:', tlResult.reason);
+      if (result.source === 'demo') {
+        pushError('All news APIs unreachable — showing demo data');
+      } else if (result.source === 'cache') {
+        pushError('Using cached data — live sources temporarily unavailable');
+      } else if (result.source === 'newsdata') {
+        // Don't show error — NewsData is a valid live source
+        console.log('[FluxMap] Using NewsData.io as data source');
       }
 
-      // If all data is empty / failed, switch to demo data
-      if (allEmpty) {
-        console.warn('[FluxMap] All API calls returned empty — using demo data');
-        pushError('GDELT API is currently unreachable. Showing demo data.');
-        const chId = activeChannel.id;
-        set({
-          geoFeatures: getDemoGeo(chId),
-          articles: getDemoArticles(chId),
-          timelineData: getDemoTimeline(chId),
-          topLocations: getDemoTopLocations(chId, 10),
-          lastUpdated: Date.now(),
-          usingDemoData: true,
-        });
-      } else {
-        // Use whatever data we got (partial is fine)
-        const topLocs = deriveTopLocations(geo, 10);
-        set({
-          geoFeatures: geo,
-          articles: arts,
-          timelineData: tl,
-          topLocations: topLocs,
-          lastUpdated: Date.now(),
-          usingDemoData: false,
-        });
-      }
+      set({
+        geoFeatures: result.geo,
+        articles: result.articles,
+        timelineData: result.timeline,
+        topLocations: result.topLocations,
+        lastUpdated: Date.now(),
+        usingDemoData: isDemoOrCache,
+        dataSource: result.source,
+      });
     } catch (err) {
       console.error('[FluxMap] refreshData failed:', err);
       // Total crash — fall back to demo data
@@ -191,6 +183,7 @@ export const useStore = create<AppState>((set, get) => ({
         topLocations: getDemoTopLocations(chId, 10),
         lastUpdated: Date.now(),
         usingDemoData: true,
+        dataSource: 'demo',
       });
     } finally {
       set({ isLoading: false });

@@ -7,6 +7,8 @@ export default defineConfig({
   server: {
     // In dev, proxy /api/gdelt-* to the real GDELT endpoints.
     // In production, Vercel serverless functions handle these routes.
+    // Note: /api/newsdata is NOT proxied here — use `vercel dev` for local
+    // NewsData.io testing (it requires the NEWSDATA_API_KEY env var).
     proxy: {
       '/api/gdelt-geo': {
         target: 'https://api.gdeltproject.org',

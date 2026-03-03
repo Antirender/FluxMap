@@ -35,6 +35,7 @@ export function Explore() {
   const setSelectedLocation = useStore((s) => s.setSelectedLocation);
   const setSearchQuery = useStore((s) => s.setSearchQuery);
   const usingDemoData = useStore((s) => s.usingDemoData);
+  const dataSource = useStore((s) => s.dataSource);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasFilters = !!selectedLocation || !!searchQuery;
@@ -59,11 +60,17 @@ export function Explore() {
 
   return (
     <div className="explore-page">
-      {/* Demo data banner */}
+      {/* Data source banner */}
       {usingDemoData && (
         <div className="demo-banner">
-          ⚠️ GDELT API is currently unreachable — showing demo data.
-          The app will automatically switch to live data when the API recovers.
+          {dataSource === 'cache'
+            ? '📦 Using cached data — live sources temporarily unavailable. Will retry automatically.'
+            : '⚠️ News APIs are currently unreachable — showing demo data. The app will switch to live data when an API recovers.'}
+        </div>
+      )}
+      {dataSource === 'newsdata' && (
+        <div className="demo-banner demo-banner--info">
+          📡 GDELT unavailable — live data provided by NewsData.io
         </div>
       )}
 

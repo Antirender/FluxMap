@@ -1,5 +1,8 @@
 /**
- * Top loading bar + optional "first load" full-screen skeleton
+ * Loading indicator — thin top progress bar + small floating toast.
+ *
+ * NEVER blocks the full screen. The user can always interact with
+ * the map and read whatever data is already loaded.
  */
 
 import { useStore } from '../store';
@@ -7,13 +10,14 @@ import './LoadingOverlay.css';
 
 export function LoadingOverlay() {
   const isLoading = useStore((s) => s.isLoading);
-  const lastUpdated = useStore((s) => s.lastUpdated);
+  const usingDemoData = useStore((s) => s.usingDemoData);
   const hasData = useStore((s) => s.geoFeatures.length > 0 || s.articles.length > 0);
 
-  // Always show the thin top bar while loading
+  // Top bar while any fetch is in flight
   const showBar = isLoading;
-  // Show full-screen skeleton only on the very first load (no data yet)
-  const showSkeleton = isLoading && !hasData && Date.now() - lastUpdated < 3_000;
+
+  // Small floating toast (not full-screen!) when loading & no data yet
+  const showToast = isLoading && !hasData;
 
   return (
     <>
@@ -23,12 +27,16 @@ export function LoadingOverlay() {
         </div>
       )}
 
-      {showSkeleton && (
-        <div className="loading-skeleton">
-          <div className="ls-content">
-            <div className="ls-spinner" />
-            <p className="ls-text">Loading global news data…</p>
-            <p className="ls-sub">Connecting to GDELT API</p>
+      {showToast && (
+        <div className="loading-toast" role="status">
+          <div className="lt-spinner" />
+          <div className="lt-text">
+            <span className="lt-title">Loading news data…</span>
+            <span className="lt-sub">
+              {usingDemoData
+                ? 'Falling back to cached data'
+                : 'Connecting to news sources'}
+            </span>
           </div>
         </div>
       )}

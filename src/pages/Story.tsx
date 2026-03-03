@@ -1,7 +1,15 @@
 /**
  * Story page – Scrollama-driven scrollytelling narrative.
- * Each step drives the shared store (channel, time window)
- * so the fixed-background MapView reacts in real time.
+ *
+ * KEY DESIGN DECISION: The Story page NEVER depends on live APIs.
+ * All map points, articles, timeline, and top-location data come from
+ * a static build-time JSON (src/data/storyData.ts). This guarantees
+ * the onboarding experience plays flawlessly even when every upstream
+ * news source is down.
+ *
+ * Each scroll step injects its pre-baked data directly into the store
+ * so the MapView, TrendChart, TopList, and ArticleEvidence all render
+ * instantly with zero network round-trips.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -10,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { MapView } from '../components/MapView';
 import { useStore } from '../store';
 import { CHANNELS } from '../data/channels';
+import { STORY_DATA } from '../data/storyData';
 import type { TimeWindow } from '../types';
 import './Story.css';
 
@@ -28,14 +37,14 @@ const STEPS: NarrativeStep[] = [
     id: 1,
     title: 'Welcome to FluxMap',
     body: 'A real-time news radar that transforms the global firehose of media into a living, breathing map. Scroll down to begin the journey.',
-    tip: '💡 The map behind this card is live — it updates from GDELT every 60 seconds.',
+    tip: '💡 The map behind this card shows how media attention distributes across the globe.',
     channelId: 'all',
     window: '24h',
   },
   {
     id: 2,
     title: 'The Global Pulse',
-    body: 'Every minute, thousands of news stories are published worldwide. The heatmap shows where media attention is concentrated right now — brighter regions mean more coverage.',
+    body: 'Every minute, thousands of news stories are published worldwide. The heatmap shows where media attention is concentrated — brighter regions mean more coverage.',
     tip: '🔥 Brighter areas = more articles. The dots represent individual geo-tagged locations.',
     channelId: 'all',
     window: '24h',
@@ -52,7 +61,7 @@ const STEPS: NarrativeStep[] = [
     id: 4,
     title: 'Forces of Nature',
     body: 'Wildfires, earthquakes, floods — natural hazards generate rapid bursts of media attention. Watch how disaster coverage clusters geographically.',
-    tip: '🌍 GDELT geo-codes locations from article text — some dots may be country-level centroids.',
+    tip: '🌍 Locations are geo-coded from article text — some dots may be country-level centroids.',
     channelId: 'wildfire',
     window: '24h',
   },
@@ -68,7 +77,7 @@ const STEPS: NarrativeStep[] = [
     id: 6,
     title: 'Digital Frontiers',
     body: 'Cyber-attacks and data breaches are invisible yet deeply impactful. This channel tracks the digital threat landscape in near-real-time.',
-    tip: '💻 Cyber events often cluster in capital cities because GDELT uses HQ locations.',
+    tip: '💻 Cyber events often cluster in capital cities where headquarter locations are reported.',
     channelId: 'cyber',
     window: '6h',
   },
@@ -76,7 +85,7 @@ const STEPS: NarrativeStep[] = [
     id: 7,
     title: 'Your Turn',
     body: "You've seen how FluxMap works. Head to the Explore dashboard to choose your own channels, search keywords, and dive into the articles behind every dot.",
-    tip: '🧭 Use the ⚙ layer controls on the Explore map to toggle heatmap, change colours, and adjust intensity.',
+    tip: '🧭 Use the layer controls on the Explore map to toggle heatmap, change colours, and adjust intensity.',
     channelId: 'all',
     window: '24h',
   },
@@ -86,9 +95,12 @@ export function Story() {
   const [currentStep, setCurrentStep] = useState(0);
   const setActiveChannel = useStore((s) => s.setActiveChannel);
   const setTimeWindow = useStore((s) => s.setTimeWindow);
-  const refreshData = useStore((s) => s.refreshData);
+  const injectStoryData = useStore((s) => s.injectStoryData);
 
-  /* apply step side-effects */
+  /**
+   * Apply step: set channel + time window in store, then inject
+   * the STATIC pre-baked data for that step. No API calls.
+   */
   const applyStep = useCallback(
     (step: NarrativeStep) => {
       if (step.channelId) {
@@ -98,12 +110,14 @@ export function Story() {
       if (step.window) {
         setTimeWindow(step.window);
       }
-      refreshData();
+      // Inject static data — zero network dependency
+      const data = STORY_DATA[step.id] ?? STORY_DATA[1];
+      injectStoryData(data);
     },
-    [setActiveChannel, setTimeWindow, refreshData],
+    [setActiveChannel, setTimeWindow, injectStoryData],
   );
 
-  /* kick off first step */
+  /* kick off first step immediately */
   useEffect(() => {
     applyStep(STEPS[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -154,7 +168,7 @@ export function Story() {
 
       {/* data source badge */}
       <div className="story-source">
-        Data: GDELT Project · Updates every ~15 min
+        Data: Pre-built snapshot · Visit <Link to="/explore" className="story-source-link">Explore</Link> for live data
       </div>
     </div>
   );

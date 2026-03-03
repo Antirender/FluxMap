@@ -121,6 +121,12 @@
   pointer-events: none;
 }
 
+.story-source-link {
+  color: var(--accent);
+  text-decoration: underline;
+  pointer-events: auto;
+}
+
 @media (max-width: 768px) {
   .story-step {
     padding: 40px 16px;

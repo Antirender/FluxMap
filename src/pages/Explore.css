@@ -18,6 +18,10 @@
   line-height: 1.4;
   flex-shrink: 0;
 }
+.demo-banner--info {
+  background: #3b82f6;
+  color: #fff;
+}
 
 /* ── toolbar ── */
 .explore-toolbar {

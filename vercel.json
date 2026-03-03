@@ -5,7 +5,8 @@
   "outputDirectory": "dist",
   "functions": {
     "api/gdelt-doc.ts": { "maxDuration": 30 },
-    "api/gdelt-geo.ts": { "maxDuration": 30 }
+    "api/gdelt-geo.ts": { "maxDuration": 30 },
+    "api/newsdata.ts": { "maxDuration": 15 }
   },
   "headers": [
     {
@@ -19,6 +20,7 @@
   "rewrites": [
     { "source": "/api/gdelt-geo", "destination": "/api/gdelt-geo" },
     { "source": "/api/gdelt-doc", "destination": "/api/gdelt-doc" },
+    { "source": "/api/newsdata", "destination": "/api/newsdata" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
