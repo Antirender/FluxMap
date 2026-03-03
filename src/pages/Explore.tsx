@@ -13,7 +13,7 @@
  *  └─────────────────────────────────────────────────────────┘
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapView } from '../components/MapView';
 import { TrendChart } from '../components/TrendChart';
 import { TopList } from '../components/TopList';
@@ -22,6 +22,8 @@ import { ChannelSelector } from '../components/ChannelSelector';
 import { TimeWindowSwitcher } from '../components/TimeWindowSwitcher';
 import { SearchInput } from '../components/SearchInput';
 import { LastUpdated } from '../components/LastUpdated';
+import { SourceSwitcher } from '../components/SourceSwitcher';
+import { TourTip, shouldShowTour } from '../components/TourTip';
 import { useStore } from '../store';
 import './Explore.css';
 
@@ -37,6 +39,7 @@ export function Explore() {
   const usingDemoData = useStore((s) => s.usingDemoData);
   const dataSource = useStore((s) => s.dataSource);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [tourOpen, setTourOpen] = useState(() => shouldShowTour());
 
   const hasFilters = !!selectedLocation || !!searchQuery;
 
@@ -68,17 +71,6 @@ export function Explore() {
             : '⚠️ All news APIs are unreachable — showing demo data.'}
         </div>
       )}
-      {dataSource === 'newsdata' && (
-        <div className="demo-banner demo-banner--info">
-          📡 Live data via NewsData.io
-        </div>
-      )}
-      {dataSource === 'guardian' && (
-        <div className="demo-banner demo-banner--info">
-          📰 Live data via The Guardian
-        </div>
-      )}
-
       {/* toolbar */}
       <div className="explore-toolbar">
         <ChannelSelector />
@@ -98,6 +90,7 @@ export function Explore() {
             </button>
           )}
           <LastUpdated />
+          <SourceSwitcher onTourRequest={() => setTourOpen(true)} />
         </div>
       </div>
 
@@ -139,6 +132,7 @@ export function Explore() {
           <ArticleEvidence />
         </div>
       </div>
+      {tourOpen && <TourTip onClose={() => setTourOpen(false)} />}
     </div>
   );
 }

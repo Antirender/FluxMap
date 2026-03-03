@@ -33,7 +33,10 @@ export function About() {
           <h2>Data Sources — Multi-Source Provider Chain</h2>
           <p>
             FluxMap uses a <strong>5-layer fallback chain</strong> to ensure
-            data is always available, even when individual APIs go down:
+            data is always available, even when individual APIs go down.
+            You can also pin a specific source using the <strong>Source switcher</strong>{' '}
+            (toolbar, top-right) to always fetch from NewsData.io, The Guardian,
+            GDELT, or view offline demo data.
           </p>
           <div className="about-api-grid">
             <div className="about-api-card">
@@ -72,6 +75,17 @@ export function About() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* onboarding */}
+        <section className="about-section">
+          <h2>Onboarding Tour</h2>
+          <p>
+            First-time visitors on the Explore page see a <strong>5-step onboarding
+            tour</strong> that walks through channels, time windows, the map,
+            search, and the source switcher. The tour can be re-launched at any
+            time via the <strong>source switcher menu → Show onboarding tour</strong>.
+          </p>
         </section>
 
         {/* channels */}

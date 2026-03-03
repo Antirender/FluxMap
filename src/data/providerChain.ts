@@ -592,7 +592,32 @@ export async function fetchAllData(
   channelQuery: string,
   timeWindow: TimeWindow,
   search?: string,
+  preferredSource?: string,
 ): Promise<DataResult> {
+  // If user pinned a specific source, try it first (then fall through normally)
+  if (preferredSource && preferredSource !== 'auto') {
+    console.log(`[provider] User preference: ${preferredSource}`);
+    if (preferredSource === 'demo') {
+      console.log('[provider] ✅ Serving demo data (user preference)');
+      return getDemoResult(channelId);
+    }
+    if (preferredSource === 'newsdata') {
+      const r = await tryNewsData(channelId, timeWindow, search);
+      if (r) { saveToStorage(channelId, timeWindow, r); return r; }
+      console.log('[provider] NewsData.io failed — falling through auto chain');
+    }
+    if (preferredSource === 'guardian') {
+      const r = await tryGuardian(channelId, timeWindow, search);
+      if (r) { saveToStorage(channelId, timeWindow, r); return r; }
+      console.log('[provider] Guardian failed — falling through auto chain');
+    }
+    if (preferredSource === 'gdelt') {
+      const r = await tryGdelt(channelQuery, timeWindow, search);
+      if (r) { saveToStorage(channelId, timeWindow, r); return r; }
+      console.log('[provider] GDELT failed — falling through auto chain');
+    }
+  }
+
   // 1. Try NewsData.io (primary live source)
   console.log('[provider] Trying NewsData.io...');
   const newsResult = await tryNewsData(channelId, timeWindow, search);

@@ -1,0 +1,206 @@
+/* ── TourTip Onboarding ── */
+
+/* Semi-transparent backdrop — clicking it dismisses the tour */
+.tour-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  /* subtle dark vignette to focus attention without blocking the UI */
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 20px;
+  pointer-events: auto;
+  animation: tour-backdrop-in 0.3s ease;
+}
+
+@keyframes tour-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── floating card (bottom-right, like world-monitor.com) ── */
+.tour-card {
+  width: 320px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: tour-card-in 0.25s ease;
+  pointer-events: auto;
+}
+
+@keyframes tour-card-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── header ── */
+.tour-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tour-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tour-counter {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── dot progress ── */
+.tour-dots {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+
+.tour-dot {
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background: var(--border);
+  transition: background 0.2s, width 0.2s;
+}
+
+.tour-dot.active {
+  background: var(--accent);
+  width: 32px;
+}
+
+.tour-dot.done {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* ── content ── */
+.tour-content {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tour-step-icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.tour-step-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-heading);
+  line-height: 1.25;
+}
+
+.tour-step-body {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+/* ── controls ── */
+.tour-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  gap: 8px;
+}
+
+.tour-skip {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.tour-skip:hover {
+  color: var(--text-secondary);
+}
+
+.tour-nav {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.tour-prev {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tour-prev:hover {
+  background: var(--hover-bg);
+}
+
+.tour-next {
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.tour-next:hover {
+  background: var(--accent-press);
+  transform: translateX(1px);
+}
+
+.tour-next--done {
+  background: var(--success, #22c55e);
+}
+
+.tour-next--done:hover {
+  background: #16a34a;
+  transform: none;
+}
+
+/* ── mobile ── */
+@media (max-width: 768px) {
+  .tour-backdrop {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .tour-card {
+    width: 100%;
+    max-width: 380px;
+    border-radius: 10px;
+  }
+}

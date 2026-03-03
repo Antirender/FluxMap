@@ -62,6 +62,8 @@ interface AppState {
   lastUpdated: number;
   usingDemoData: boolean;
   dataSource: 'gdelt' | 'newsdata' | 'guardian' | 'cache' | 'demo' | null;
+  preferredSource: string;            // 'auto' | 'newsdata' | 'guardian' | 'gdelt' | 'demo'
+  setPreferredSource: (s: string) => void;
   errors: AppError[];
   pushError: (msg: string) => void;
   dismissError: (id: number) => void;
@@ -108,6 +110,13 @@ export const useStore = create<AppState>((set, get) => ({
   lastUpdated: Date.now(),
   usingDemoData: false,
   dataSource: null,
+  preferredSource: (typeof localStorage !== 'undefined'
+    ? (localStorage.getItem('fluxmap-source') ?? 'auto')
+    : 'auto'),
+  setPreferredSource: (s) => {
+    if (typeof localStorage !== 'undefined') localStorage.setItem('fluxmap-source', s);
+    set({ preferredSource: s });
+  },
 
   /* ---- error toasts ---- */
   errors: [],
@@ -139,16 +148,17 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   refreshData: async () => {
-    const { activeChannel, timeWindow, searchQuery, pushError } = get();
+    const { activeChannel, timeWindow, searchQuery, pushError, preferredSource } = get();
     set({ isLoading: true });
 
     try {
-      // Multi-source provider chain: GDELT → NewsData.io → cache → demo
+      // Multi-source provider chain with optional user preference
       const result = await fetchAllData(
         activeChannel.id,
         activeChannel.query,
         timeWindow,
         searchQuery,
+        preferredSource,
       );
 
       const isDemoOrCache = result.source === 'demo' || result.source === 'cache';
