@@ -9,9 +9,14 @@ import './TrendChart.css';
 export function TrendChart() {
   const timelineData = useStore((s) => s.timelineData);
   const activeChannel = useStore((s) => s.activeChannel);
+  const isLoading = useStore((s) => s.isLoading);
 
   if (timelineData.length === 0) {
-    return <div className="trend-chart empty">Waiting for timeline data…</div>;
+    return (
+      <div className="trend-chart empty">
+        {isLoading ? 'Loading trend data…' : 'No timeline data available'}
+      </div>
+    );
   }
 
   const height = 120;

@@ -17,9 +17,24 @@ import type { TimeWindow, GeoFeature, GdeltArticle, TimelinePoint, TopLocation }
 const GEO_BASE = '/api/gdelt-geo';
 const DOC_BASE = '/api/gdelt-doc';
 
+/** Client-side fetch timeout (ms). Prevents UI from hanging. */
+const CLIENT_TIMEOUT = 12_000;
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
+
+/** Fetch with an AbortController timeout */
+async function fetchWithTimeout(url: string, timeoutMs = CLIENT_TIMEOUT): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /** Convert UI time-window to GDELT timespan string */
 export function timespanFromWindow(window: TimeWindow): string {
@@ -44,8 +59,8 @@ export function buildQuery(channelQuery: string, search?: string): string {
 /* ------------------------------------------------------------------ */
 /*  LRU + TTL In-memory cache                                        */
 /* ------------------------------------------------------------------ */
-const CACHE_TTL = 60 * 1000;   // 60 s — matches Vercel CDN s-maxage
-const CACHE_MAX = 80;          // max entries before LRU eviction
+const CACHE_TTL = 90 * 1000;   // 90 s — matches Vercel CDN s-maxage
+const CACHE_MAX = 120;         // max entries before LRU eviction
 
 interface CacheEntry { ts: number; data: unknown }
 const cache = new Map<string, CacheEntry>();
@@ -112,7 +127,7 @@ export async function fetchGeoData(
   const url = `${GEO_BASE}?query=${encodeURIComponent(query)}&mode=PointData&format=GeoJSON&timespan=${ts}`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url);
     if (!res.ok) throw new Error(`GEO API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
@@ -175,7 +190,7 @@ export async function fetchArticles(
     `&maxrecords=${maxRecords}&sort=DateDesc`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url);
     if (!res.ok) throw new Error(`DOC API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{')) {
@@ -241,7 +256,7 @@ export async function fetchTimeline(
     `&mode=TimelineVol&format=json&timespan=${ts}`;
 
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url);
     if (!res.ok) throw new Error(`DOC Timeline API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{')) {

@@ -27,20 +27,24 @@ import './Explore.css';
 
 export function Explore() {
   const refreshData = useStore((s) => s.refreshData);
+  const prefetchNeighbors = useStore((s) => s.prefetchNeighbors);
   const timeWindow = useStore((s) => s.timeWindow);
   const activeChannel = useStore((s) => s.activeChannel);
   const searchQuery = useStore((s) => s.searchQuery);
   const selectedLocation = useStore((s) => s.selectedLocation);
   const setSelectedLocation = useStore((s) => s.setSelectedLocation);
   const setSearchQuery = useStore((s) => s.setSearchQuery);
+  const isLoading = useStore((s) => s.isLoading);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasFilters = !!selectedLocation || !!searchQuery;
 
   /* initial fetch + auto-refresh 60 s */
   useEffect(() => {
-    refreshData();
-    intervalRef.current = setInterval(refreshData, 60_000);
+    refreshData().then(() => prefetchNeighbors());
+    intervalRef.current = setInterval(() => {
+      refreshData().then(() => prefetchNeighbors());
+    }, 60_000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -49,7 +53,7 @@ export function Explore() {
 
   /* re-fetch when inputs change */
   useEffect(() => {
-    refreshData();
+    refreshData().then(() => prefetchNeighbors());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeWindow, activeChannel, searchQuery]);
 

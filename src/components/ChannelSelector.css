@@ -39,3 +39,8 @@
 .channel-label {
   line-height: 1;
 }
+
+.channel-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

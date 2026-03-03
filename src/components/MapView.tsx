@@ -239,6 +239,8 @@ export function MapView() {
 
             <label className="mc-row">
               <input
+                id="layer-heatmap"
+                name="layer-heatmap"
                 type="checkbox"
                 checked={showHeatmap}
                 onChange={() => setShowHeatmap((v) => !v)}
@@ -248,6 +250,8 @@ export function MapView() {
 
             <label className="mc-row">
               <input
+                id="layer-scatter"
+                name="layer-scatter"
                 type="checkbox"
                 checked={showScatter}
                 onChange={() => setShowScatter((v) => !v)}
@@ -281,6 +285,8 @@ export function MapView() {
 
                 <h4>Radius · {heatRadius}px</h4>
                 <input
+                  id="heat-radius"
+                  name="heat-radius"
                   type="range"
                   min={20}
                   max={200}
@@ -292,6 +298,8 @@ export function MapView() {
 
                 <h4>Intensity · {heatIntensity.toFixed(1)}</h4>
                 <input
+                  id="heat-intensity"
+                  name="heat-intensity"
                   type="range"
                   min={0.5}
                   max={5}
@@ -309,7 +317,10 @@ export function MapView() {
       {/* Empty-state hint */}
       {geoFeatures.length === 0 && (
         <div className="map-empty">
-          No geo data — try a different channel or window
+          <div className="map-empty-inner">
+            <span className="map-empty-icon">🌐</span>
+            <span>No geo data — try a different channel or window</span>
+          </div>
         </div>
       )}
     </div>

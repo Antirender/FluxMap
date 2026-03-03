@@ -1,31 +1,36 @@
 /**
  * Segmented control for switching the GDELT query time window.
- * GDELT supports minute-level resolution (min 15 min).
- * Reference: https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/
+ * Shows a loading pulse on the active segment and warns for heavy windows.
  */
 
 import { useStore } from '../store';
 import type { TimeWindow } from '../types';
 import './TimeWindowSwitcher.css';
 
-const TIME_WINDOWS: { value: TimeWindow; label: string }[] = [
-  { value: '15m', label: '15 min' },
-  { value: '1h',  label: '1 hr'  },
-  { value: '6h',  label: '6 hr'  },
-  { value: '24h', label: '24 hr' },
-  { value: '7d',  label: '7 day' },
+const TIME_WINDOWS: { value: TimeWindow; label: string; hint: string }[] = [
+  { value: '15m', label: '15 min', hint: 'Last 15 minutes' },
+  { value: '1h',  label: '1 hr',   hint: 'Last hour' },
+  { value: '6h',  label: '6 hr',   hint: 'Last 6 hours' },
+  { value: '24h', label: '24 hr',  hint: 'Last 24 hours' },
+  { value: '7d',  label: '7 day',  hint: '7 days — larger dataset, may be slower' },
 ];
 
 export function TimeWindowSwitcher() {
-  const { timeWindow, setTimeWindow } = useStore();
+  const { timeWindow, setTimeWindow, isLoading } = useStore();
 
   return (
-    <div className="time-window-switcher">
+    <div className="time-window-switcher" role="radiogroup" aria-label="Time window">
       {TIME_WINDOWS.map((tw) => (
         <button
           key={tw.value}
-          className={`tw-btn ${timeWindow === tw.value ? 'active' : ''}`}
+          role="radio"
+          aria-checked={timeWindow === tw.value}
+          className={`tw-btn ${timeWindow === tw.value ? 'active' : ''} ${
+            timeWindow === tw.value && isLoading ? 'loading' : ''
+          }`}
           onClick={() => setTimeWindow(tw.value)}
+          title={tw.hint}
+          disabled={timeWindow === tw.value && isLoading}
         >
           {tw.label}
         </button>

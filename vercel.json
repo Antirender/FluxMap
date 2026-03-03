@@ -3,6 +3,19 @@
   "framework": "vite",
   "buildCommand": "vite build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/gdelt-doc.ts": { "maxDuration": 10 },
+    "api/gdelt-geo.ts": { "maxDuration": 10 }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/api/gdelt-geo", "destination": "/api/gdelt-geo" },
     { "source": "/api/gdelt-doc", "destination": "/api/gdelt-doc" },

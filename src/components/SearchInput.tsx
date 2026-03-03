@@ -25,9 +25,13 @@ export function SearchInput() {
     <div className="search-input-wrap">
       <span className="search-icon">🔍</span>
       <input
+        id="search-keyword"
+        name="search-keyword"
         className="search-input"
         type="text"
         placeholder="Add keyword…"
+        aria-label="Search keyword filter"
+        autoComplete="off"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
       />

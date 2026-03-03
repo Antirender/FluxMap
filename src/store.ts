@@ -1,13 +1,12 @@
 /**
  * Global state management using Zustand
- * Reference: https://github.com/pmndrs/zustand
  *
  * Single source-of-truth for:
  *  - active channel & search query
  *  - selected time window
  *  - GDELT data (geo features, articles, timeline)
  *  - derived data (top locations)
- *  - interaction state (selected location, loading flag)
+ *  - interaction state (selected location, loading flag, errors)
  */
 
 import { create } from 'zustand';
@@ -20,6 +19,15 @@ import {
   fetchTimeline,
   deriveTopLocations,
 } from './data/gdeltApi';
+
+/** Toast-style error that auto-dismisses */
+export interface AppError {
+  id: number;
+  message: string;
+  ts: number;
+}
+
+let errorIdCounter = 0;
 
 interface AppState {
   /* ---- Theme ---- */
@@ -45,13 +53,17 @@ interface AppState {
   /* ---- UI state ---- */
   isLoading: boolean;
   lastUpdated: number;
+  errors: AppError[];
+  pushError: (msg: string) => void;
+  dismissError: (id: number) => void;
 
-  selectedLocation: string | null; // name of clicked location
+  selectedLocation: string | null;
   setSelectedLocation: (name: string | null) => void;
 
   /* ---- Actions ---- */
-  /** Fetch all data from GDELT for current channel + window + search */
   refreshData: () => Promise<void>;
+  /** Prefetch adjacent time windows in the background */
+  prefetchNeighbors: () => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -68,9 +80,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   /* ---- defaults ---- */
   activeChannel: CHANNELS[0],
-  setActiveChannel: (ch) => {
-    set({ activeChannel: ch });
-  },
+  setActiveChannel: (ch) => set({ activeChannel: ch }),
 
   timeWindow: '1h',
   setTimeWindow: (tw) => set({ timeWindow: tw }),
@@ -86,21 +96,52 @@ export const useStore = create<AppState>((set, get) => ({
   isLoading: false,
   lastUpdated: Date.now(),
 
+  /* ---- error toasts ---- */
+  errors: [],
+  pushError: (msg) => {
+    const id = ++errorIdCounter;
+    set((s) => ({ errors: [...s.errors, { id, message: msg, ts: Date.now() }] }));
+    // Auto-dismiss after 6 s
+    setTimeout(() => {
+      set((s) => ({ errors: s.errors.filter((e) => e.id !== id) }));
+    }, 6_000);
+  },
+  dismissError: (id) => {
+    set((s) => ({ errors: s.errors.filter((e) => e.id !== id) }));
+  },
+
   selectedLocation: null,
   setSelectedLocation: (name) => set({ selectedLocation: name }),
 
   refreshData: async () => {
-    const { activeChannel, timeWindow, searchQuery } = get();
+    const { activeChannel, timeWindow, searchQuery, pushError } = get();
     set({ isLoading: true });
 
     try {
-      // All three calls go through /api/ proxy (Vercel Edge cached).
-      // The proxy avoids GDELT per-IP rate limit, so we can parallelize.
-      const [geo, arts, tl] = await Promise.all([
+      // Promise.allSettled — one failure won't kill the rest
+      const [geoResult, artsResult, tlResult] = await Promise.allSettled([
         fetchGeoData(activeChannel.query, timeWindow, searchQuery),
         fetchArticles(activeChannel.query, timeWindow, searchQuery),
         fetchTimeline(activeChannel.query, timeWindow, searchQuery),
       ]);
+
+      const geo = geoResult.status === 'fulfilled' ? geoResult.value : [];
+      const arts = artsResult.status === 'fulfilled' ? artsResult.value : [];
+      const tl = tlResult.status === 'fulfilled' ? tlResult.value : [];
+
+      // Report individual failures without crashing
+      if (geoResult.status === 'rejected') {
+        console.error('[FluxMap] GEO failed:', geoResult.reason);
+        pushError('Map data unavailable — retrying next cycle');
+      }
+      if (artsResult.status === 'rejected') {
+        console.error('[FluxMap] Articles failed:', artsResult.reason);
+        pushError('Article list unavailable — retrying next cycle');
+      }
+      if (tlResult.status === 'rejected') {
+        console.error('[FluxMap] Timeline failed:', tlResult.reason);
+        pushError('Trend chart unavailable — retrying next cycle');
+      }
 
       const topLocs = deriveTopLocations(geo, 10);
 
@@ -113,8 +154,24 @@ export const useStore = create<AppState>((set, get) => ({
       });
     } catch (err) {
       console.error('[FluxMap] refreshData failed:', err);
+      pushError('Data refresh failed — check your connection');
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  /** Warm cache for adjacent time windows so switching feels instant */
+  prefetchNeighbors: () => {
+    const { activeChannel, timeWindow, searchQuery } = get();
+    const windows: TimeWindow[] = ['15m', '1h', '6h', '24h', '7d'];
+    const idx = windows.indexOf(timeWindow);
+    const neighbors = [windows[idx - 1], windows[idx + 1]].filter(Boolean) as TimeWindow[];
+
+    for (const tw of neighbors) {
+      // Fire-and-forget; results land in the client LRU cache
+      fetchGeoData(activeChannel.query, tw, searchQuery).catch(() => {});
+      fetchArticles(activeChannel.query, tw, searchQuery).catch(() => {});
+      fetchTimeline(activeChannel.query, tw, searchQuery).catch(() => {});
     }
   },
 }));

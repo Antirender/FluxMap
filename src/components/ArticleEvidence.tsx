@@ -1,6 +1,7 @@
 /**
  * Article list panel – shows GDELT articles.
  * When a location is selected, articles are filtered by that location's name.
+ * Shows contextual empty states and loading hints.
  */
 
 import { useMemo } from 'react';
@@ -12,6 +13,7 @@ export function ArticleEvidence() {
   const selectedLocation = useStore((s) => s.selectedLocation);
   const setSelectedLocation = useStore((s) => s.setSelectedLocation);
   const activeChannel = useStore((s) => s.activeChannel);
+  const isLoading = useStore((s) => s.isLoading);
 
   const displayed = useMemo(() => {
     let list = articles;
@@ -66,7 +68,13 @@ export function ArticleEvidence() {
 
       <div className="ae-list">
         {displayed.length === 0 && (
-          <div className="ae-empty">No articles found</div>
+          <div className="ae-empty">
+            {isLoading
+              ? 'Loading articles…'
+              : selectedLocation
+                ? `No articles match "${selectedLocation}"`
+                : 'No articles found — try a different channel or time window'}
+          </div>
         )}
 
         {displayed.map((a, i) => (

@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LoadingOverlay } from './LoadingOverlay';
+import { ErrorToast } from './ErrorToast';
 import { useStore } from '../store';
 import './Layout.css';
 
@@ -34,6 +35,7 @@ export function Layout() {
   return (
     <div className="layout">
       <LoadingOverlay />
+      <ErrorToast />
 
       <nav className="navbar">
         <div className="navbar-brand">
