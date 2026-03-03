@@ -36,56 +36,56 @@ const STEPS: NarrativeStep[] = [
   {
     id: 1,
     title: 'Welcome to FluxMap',
-    body: 'A real-time news radar that transforms the global firehose of media into a living, breathing map. Scroll down to begin the journey.',
-    tip: '💡 The map behind this card shows how media attention distributes across the globe.',
+    body: 'A real-time news radar that transforms the global firehose of media into a living, breathing map. Every dot you see represents a location mentioned in world news coverage.',
+    tip: '⬇️ Scroll down to explore how FluxMap reveals the hidden geography of global news.',
     channelId: 'all',
     window: '24h',
   },
   {
     id: 2,
     title: 'The Global Pulse',
-    body: 'Every minute, thousands of news stories are published worldwide. The heatmap shows where media attention is concentrated — brighter regions mean more coverage.',
-    tip: '🔥 Brighter areas = more articles. The dots represent individual geo-tagged locations.',
+    body: 'Every minute, thousands of news stories are published worldwide. The heatmap shows where media attention is concentrated — brighter regions mean more coverage. Notice how Washington, London, and Tokyo light up as global news hubs.',
+    tip: '🔥 Brighter areas = more articles mentioned from that location. The dots represent individual geo-tagged clusters.',
     channelId: 'all',
     window: '24h',
   },
   {
     id: 3,
     title: 'Voices of Dissent',
-    body: 'Switching to the Protest channel reveals demonstrations, strikes, and civil unrest across the globe. Red dots mark locations with active coverage.',
-    tip: '✊ Channel queries use Boolean search — e.g. "protest" OR "riot" OR "demonstration".',
+    body: 'Switching to the Protest channel reveals demonstrations, strikes, and civil unrest across the globe. Watch the map shift — Paris, Istanbul, and Bangkok emerge as hotspots when filtered through the lens of civic action.',
+    tip: '✊ Each channel uses Boolean search queries — e.g. "protest OR demonstration OR riot" — to filter the global news stream.',
     channelId: 'protest',
     window: '24h',
   },
   {
     id: 4,
     title: 'Forces of Nature',
-    body: 'Wildfires, earthquakes, floods — natural hazards generate rapid bursts of media attention. Watch how disaster coverage clusters geographically.',
-    tip: '🌍 Locations are geo-coded from article text — some dots may be country-level centroids.',
+    body: 'Wildfires, earthquakes, floods — natural hazards generate rapid bursts of media attention. The Maui fires of 2023 and Chile\'s deadly forest fires show how disaster coverage clusters geographically and spikes over time.',
+    tip: '🌍 Geo-coded locations come from article text — some dots represent country centroids, others pinpoint cities.',
     channelId: 'wildfire',
     window: '24h',
   },
   {
     id: 5,
     title: 'Time Reveals Patterns',
-    body: 'Narrowing the window to just one hour shows only the freshest stories. Compare this to the 24-hour view and see how quickly the news cycle evolves.',
-    tip: '⏱ Time windows: 15 min → 7 days. Shorter windows show breaking events; longer windows reveal trends.',
+    body: 'Narrowing the window to just one hour shows only the freshest stories. Compare this sparse view to the 24-hour heatmap — you can literally watch the news cycle breathe, expanding and contracting around breaking events.',
+    tip: '⏱ Time windows range from 15 minutes to 7 days. Shorter windows catch breaking events; longer windows reveal sustained trends.',
     channelId: 'all',
     window: '1h',
   },
   {
     id: 6,
     title: 'Digital Frontiers',
-    body: 'Cyber-attacks and data breaches are invisible yet deeply impactful. This channel tracks the digital threat landscape in near-real-time.',
-    tip: '💻 Cyber events often cluster in capital cities where headquarter locations are reported.',
+    body: 'Cyber-attacks and data breaches are invisible yet deeply impactful. This channel tracks the digital threat landscape — notice how events cluster around capital cities and tech hubs where corporate headquarters are reported.',
+    tip: '💻 Cyber events often appear at corporate HQ locations (Washington, London, Seoul) rather than where the attack actually occurred.',
     channelId: 'cyber',
     window: '6h',
   },
   {
     id: 7,
-    title: 'Your Turn',
-    body: "You've seen how FluxMap works. Head to the Explore dashboard to choose your own channels, search keywords, and dive into the articles behind every dot.",
-    tip: '🧭 Use the layer controls on the Explore map to toggle heatmap, change colours, and adjust intensity.',
+    title: 'Your Turn to Explore',
+    body: "You've seen how FluxMap transforms raw news into geographic intelligence. Head to the Explore dashboard to choose your own channels, search any keyword, and click the dots to read the articles behind every event.",
+    tip: '🧭 Try typing a keyword like "election" or "earthquake" in the search bar on the Explore page.',
     channelId: 'all',
     window: '24h',
   },
@@ -152,6 +152,13 @@ export function Story() {
 
                   {step.tip && (
                     <div className="story-tip">{step.tip}</div>
+                  )}
+
+                  {step.id === 1 && (
+                    <div className="story-scroll-hint">
+                      <span className="story-scroll-arrow">↓</span>
+                      <span>Scroll to continue</span>
+                    </div>
                   )}
 
                   {step.id === STEPS.length && (

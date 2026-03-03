@@ -1,23 +1,34 @@
 /**
  * Unified multi-source data provider chain
  *
- * Architecture (3 layers):
+ * Architecture (5 layers):
  *
- *   Layer 1 — localStorage persistent cache
+ *   Layer 1 — NewsData.io (primary live source)
+ *             Calls https://newsdata.io directly from the browser.
+ *             Set VITE_NEWSDATA_API_KEY in .env.local (free, 200 req/day).
+ *
+ *   Layer 2 — The Guardian Open Platform
+ *             Completely free, no-key access via 'test' key.
+ *             Set VITE_GUARDIAN_API_KEY for a higher-rate personal key.
+ *
+ *   Layer 3 — GDELT (great when up, geo-native)
+ *             Falls back silently if server is unreachable.
+ *
+ *   Layer 4 — localStorage persistent cache (30-min TTL)
  *             Last successful result per channel+timeWindow.
- *             Guarantees something shows instantly on page load.
  *
- *   Layer 2 — Primary source: GDELT (free, fast, has geo points)
- *             Falls back silently if down.
- *
- *   Layer 3 — Fallback source: NewsData.io (free tier, 200 cred/day)
- *             Returns articles that get geocoded via a built-in
- *             city→lat/lng dictionary (no external geocoding API needed).
- *
- *   Layer 4 — Demo / static data (always available)
+ *   Layer 5 — Demo / static data (always available)
  *
  * The Explore page calls `fetchAllData()` which tries each layer
  * in order and returns the first successful result.
+ *
+ * Required env vars (in .env.local for dev, Vercel dashboard for prod):
+ *   NEWSDATA_API_KEY   — from newsdata.io (no VITE_ prefix; server-side only)
+ *   GUARDIAN_API_KEY    — from open-platform.theguardian.com (server-side only)
+ *
+ * Keys are kept server-side in Vercel serverless functions (/api/newsdata,
+ * /api/guardian). The browser never sees them.
+ * For local dev, run `vercel dev` instead of `npm run dev`.
  */
 
 import type { TimeWindow, GeoFeature, GdeltArticle, TimelinePoint, TopLocation } from '../types';
@@ -43,7 +54,7 @@ export interface DataResult {
   articles: GdeltArticle[];
   timeline: TimelinePoint[];
   topLocations: TopLocation[];
-  source: 'gdelt' | 'newsdata' | 'cache' | 'demo';
+  source: 'gdelt' | 'newsdata' | 'guardian' | 'cache' | 'demo';
 }
 
 /* ================================================================== */
@@ -116,10 +127,10 @@ async function tryGdelt(
 }
 
 /* ================================================================== */
-/*  Layer 3 — NewsData.io (fallback source)                            */
+/*  Layer 1 — NewsData.io (primary live source)                       */
 /* ================================================================== */
 
-/** Map channel IDs to NewsData.io keywords */
+/** Map channel IDs to NewsData.io / Guardian keywords */
 const CHANNEL_KEYWORDS: Record<string, string> = {
   all: '',
   protest: 'protest OR demonstration OR riot',
@@ -355,17 +366,18 @@ async function tryNewsData(
     const params = new URLSearchParams();
     if (keywords) params.set('q', keywords);
     params.set('language', 'en');
-    params.set('size', '25');
+    params.set('size', '10');
 
+    // Call through serverless proxy (key stays server-side)
     const url = `/api/newsdata?${params.toString()}`;
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15_000);
+    const timer = setTimeout(() => controller.abort(), 12_000);
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timer);
 
     if (!res.ok) {
-      console.warn('[provider] NewsData proxy returned', res.status);
+      console.warn('[provider] NewsData.io returned', res.status);
       return null;
     }
 
@@ -455,6 +467,105 @@ function buildTimelineFromArticles(articles: GdeltArticle[]): TimelinePoint[] {
 }
 
 /* ================================================================== */
+/*  Layer 2 — The Guardian Open Platform                               */
+/* ================================================================== */
+
+interface GuardianResult {
+  id: string;
+  webTitle: string;
+  webUrl: string;
+  webPublicationDate: string;
+  sectionName?: string;
+  fields?: { trailText?: string; thumbnail?: string };
+}
+
+interface GuardianResponse {
+  response?: {
+    status: string;
+    results?: GuardianResult[];
+  };
+}
+
+async function tryGuardian(
+  channelId: string,
+  _timeWindow: TimeWindow,
+  search?: string,
+): Promise<DataResult | null> {
+  try {
+    const keywords = search?.trim()
+      ? search.trim()
+      : CHANNEL_KEYWORDS[channelId] || 'world';
+
+    const params = new URLSearchParams();
+    params.set('q', keywords);
+    params.set('page-size', '20');
+
+    // Call through serverless proxy (key stays server-side)
+    const url = `/api/guardian?${params.toString()}`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12_000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+
+    if (!res.ok) {
+      console.warn('[provider] Guardian API returned', res.status);
+      return null;
+    }
+
+    const json = (await res.json()) as GuardianResponse;
+    const results = json.response?.results;
+    if (!results || results.length === 0) return null;
+
+    // Convert to unified article format
+    const articles: GdeltArticle[] = results.map((r) => ({
+      url: r.webUrl || '',
+      url_mobile: '',
+      title: r.webTitle || '(no title)',
+      seendate: r.webPublicationDate
+        ? r.webPublicationDate.replace(/[-:T]/g, '').slice(0, 15) + 'Z'
+        : '',
+      socialimage: r.fields?.thumbnail || '',
+      domain: 'theguardian.com',
+      language: 'en',
+      sourcecountry: 'uk',
+    }));
+
+    // Extract geo from article titles
+    const geoMap = new Map<string, GeoFeature>();
+    for (const r of results) {
+      const loc = extractGeoFromArticle({ title: r.webTitle, country: [], source_url: r.webUrl });
+      if (!loc) continue;
+      const existing = geoMap.get(loc.name);
+      if (existing) {
+        existing.properties.count += 1;
+      } else {
+        geoMap.set(loc.name, {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [loc.lng, loc.lat] },
+          properties: { name: loc.name, count: 1, shareimage: '', html: '' },
+        });
+      }
+    }
+
+    const geo = Array.from(geoMap.values());
+    const topLocations = deriveTopLocations(geo, 10);
+    const timeline = buildTimelineFromArticles(articles);
+
+    return { geo, articles, timeline, topLocations, source: 'guardian' };
+  } catch (err) {
+    console.warn('[provider] Guardian failed:', err);
+    return null;
+  }
+}
+
+/* ================================================================== */
+/*  Layer 3 — GDELT                                                    */
+/* ================================================================== */
+
+/* (tryGdelt function defined above, moved logically here) */
+
+/* ================================================================== */
 /*  Layer 4 — Demo data                                               */
 /* ================================================================== */
 
@@ -474,7 +585,7 @@ function getDemoResult(channelId: string): DataResult {
 
 /**
  * Fetch data from the multi-source provider chain.
- * Order: memory cache (in gdeltApi.ts) → GDELT → NewsData.io → localStorage → demo
+ * Order: NewsData.io → Guardian → GDELT → localStorage cache → demo
  */
 export async function fetchAllData(
   channelId: string,
@@ -482,17 +593,8 @@ export async function fetchAllData(
   timeWindow: TimeWindow,
   search?: string,
 ): Promise<DataResult> {
-  // 1. Try GDELT (primary — has native geo points)
-  console.log('[provider] Trying GDELT...');
-  const gdeltResult = await tryGdelt(channelQuery, timeWindow, search);
-  if (gdeltResult) {
-    console.log('[provider] ✅ GDELT succeeded');
-    saveToStorage(channelId, timeWindow, gdeltResult);
-    return gdeltResult;
-  }
-
-  // 2. Try NewsData.io (fallback — articles with extracted geo)
-  console.log('[provider] GDELT failed, trying NewsData.io...');
+  // 1. Try NewsData.io (primary live source)
+  console.log('[provider] Trying NewsData.io...');
   const newsResult = await tryNewsData(channelId, timeWindow, search);
   if (newsResult) {
     console.log('[provider] ✅ NewsData.io succeeded');
@@ -500,15 +602,33 @@ export async function fetchAllData(
     return newsResult;
   }
 
-  // 3. Try localStorage cache (stale but visible)
-  console.log('[provider] NewsData.io failed, trying cache...');
+  // 2. Try The Guardian (second live source, free with 'test' key)
+  console.log('[provider] NewsData.io failed/skipped, trying Guardian...');
+  const guardianResult = await tryGuardian(channelId, timeWindow, search);
+  if (guardianResult) {
+    console.log('[provider] ✅ Guardian succeeded');
+    saveToStorage(channelId, timeWindow, guardianResult);
+    return guardianResult;
+  }
+
+  // 3. Try GDELT (geo-native but currently unreachable)
+  console.log('[provider] Guardian failed, trying GDELT...');
+  const gdeltResult = await tryGdelt(channelQuery, timeWindow, search);
+  if (gdeltResult) {
+    console.log('[provider] ✅ GDELT succeeded');
+    saveToStorage(channelId, timeWindow, gdeltResult);
+    return gdeltResult;
+  }
+
+  // 4. Try localStorage cache (stale but visible)
+  console.log('[provider] All live sources failed, trying cache...');
   const cached = loadFromStorage(channelId, timeWindow);
   if (cached) {
     console.log('[provider] ✅ Using cached data');
     return cached;
   }
 
-  // 4. Fall back to demo data (always available)
+  // 5. Fall back to demo data (always available)
   console.log('[provider] All sources failed, using demo data');
   return getDemoResult(channelId);
 }

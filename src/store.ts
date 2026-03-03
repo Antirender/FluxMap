@@ -61,7 +61,7 @@ interface AppState {
   isLoading: boolean;
   lastUpdated: number;
   usingDemoData: boolean;
-  dataSource: 'gdelt' | 'newsdata' | 'cache' | 'demo' | null;
+  dataSource: 'gdelt' | 'newsdata' | 'guardian' | 'cache' | 'demo' | null;
   errors: AppError[];
   pushError: (msg: string) => void;
   dismissError: (id: number) => void;
@@ -158,8 +158,9 @@ export const useStore = create<AppState>((set, get) => ({
       } else if (result.source === 'cache') {
         pushError('Using cached data — live sources temporarily unavailable');
       } else if (result.source === 'newsdata') {
-        // Don't show error — NewsData is a valid live source
         console.log('[FluxMap] Using NewsData.io as data source');
+      } else if (result.source === 'guardian') {
+        console.log('[FluxMap] Using The Guardian as data source');
       }
 
       set({

@@ -6,7 +6,8 @@
   "functions": {
     "api/gdelt-doc.ts": { "maxDuration": 30 },
     "api/gdelt-geo.ts": { "maxDuration": 30 },
-    "api/newsdata.ts": { "maxDuration": 15 }
+    "api/newsdata.ts": { "maxDuration": 15 },
+    "api/guardian.ts": { "maxDuration": 15 }
   },
   "headers": [
     {
@@ -21,6 +22,7 @@
     { "source": "/api/gdelt-geo", "destination": "/api/gdelt-geo" },
     { "source": "/api/gdelt-doc", "destination": "/api/gdelt-doc" },
     { "source": "/api/newsdata", "destination": "/api/newsdata" },
+    { "source": "/api/guardian", "destination": "/api/guardian" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

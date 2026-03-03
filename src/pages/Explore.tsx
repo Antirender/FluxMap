@@ -65,12 +65,17 @@ export function Explore() {
         <div className="demo-banner">
           {dataSource === 'cache'
             ? '📦 Using cached data — live sources temporarily unavailable. Will retry automatically.'
-            : '⚠️ News APIs are currently unreachable — showing demo data. The app will switch to live data when an API recovers.'}
+            : '⚠️ All news APIs are unreachable — showing demo data.'}
         </div>
       )}
       {dataSource === 'newsdata' && (
         <div className="demo-banner demo-banner--info">
-          📡 GDELT unavailable — live data provided by NewsData.io
+          📡 Live data via NewsData.io
+        </div>
+      )}
+      {dataSource === 'guardian' && (
+        <div className="demo-banner demo-banner--info">
+          📰 Live data via The Guardian
         </div>
       )}
 

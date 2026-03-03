@@ -12,7 +12,7 @@ export function About() {
         <header className="about-hero">
           <h1>About FluxMap</h1>
           <p className="about-subtitle">
-            An open, real-time news event radar powered by GDELT
+            An open, real-time news event radar with multi-source resilience
           </p>
         </header>
 
@@ -21,38 +21,54 @@ export function About() {
           <h2>What is FluxMap?</h2>
           <p>
             FluxMap transforms the global firehose of online news into a living,
-            interactive heatmap. It pulls geo-tagged media mentions from the
-            GDELT Project in near-real-time, clusters them by location and
-            topic, and renders the result on a deck.gl / MapLibre globe — giving
-            you an at-a-glance picture of where news is happening <em>right now</em>.
+            interactive heatmap. It pulls articles from multiple news APIs,
+            extracts geographic mentions, and renders the result on a
+            deck.gl / MapLibre globe — giving you an at-a-glance picture
+            of where news is happening <em>right now</em>.
           </p>
         </section>
 
         {/* data */}
         <section className="about-section">
-          <h2>Data Source — GDELT</h2>
+          <h2>Data Sources — Multi-Source Provider Chain</h2>
           <p>
-            The <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener noreferrer">GDELT Project</a> monitors
-            broadcast, print and web news from nearly every country in over 100
-            languages. FluxMap queries two of its public APIs:
+            FluxMap uses a <strong>5-layer fallback chain</strong> to ensure
+            data is always available, even when individual APIs go down:
           </p>
           <div className="about-api-grid">
             <div className="about-api-card">
-              <h3>GEO 2.0 API</h3>
-              <code>api.gdeltproject.org/api/v2/geo/geo</code>
+              <h3>1. NewsData.io</h3>
+              <code>newsdata.io/api/1/latest</code>
               <p>
-                Returns geo-coded point data in GeoJSON format. Each point
-                represents a location mentioned in matching articles, with a
-                <strong> count</strong> of how many articles reference it.
+                Primary live source. Free tier with 200 credits/day.
+                Returns latest news articles with country tags, which
+                FluxMap geocodes via a built-in city/country dictionary.
               </p>
             </div>
             <div className="about-api-card">
-              <h3>DOC 2.0 API</h3>
-              <code>api.gdeltproject.org/api/v2/doc/doc</code>
+              <h3>2. The Guardian</h3>
+              <code>content.guardianapis.com/search</code>
               <p>
-                Returns article metadata (<em>ArtList</em> mode) and volume
-                timelines (<em>TimelineVol</em> mode) for the matching query
-                and time window.
+                Second live source via the Guardian Open Platform.
+                Free API key with generous rate limits. Articles are
+                geocoded from headline text using location extraction.
+              </p>
+            </div>
+            <div className="about-api-card">
+              <h3>3. GDELT Project</h3>
+              <code>api.gdeltproject.org/api/v2</code>
+              <p>
+                Geo-native news monitoring across 100+ languages.
+                Returns GeoJSON points directly. Used when available
+                but currently intermittent.
+              </p>
+            </div>
+            <div className="about-api-card">
+              <h3>4–5. Cache &amp; Demo</h3>
+              <p>
+                localStorage cache (30-min TTL) stores the last
+                successful result per channel. If all APIs fail,
+                curated demo data with real article links is shown.
               </p>
             </div>
           </div>
@@ -79,22 +95,23 @@ export function About() {
               data every <strong>60 seconds</strong>.
             </li>
             <li>
+              <strong>Serverless proxies</strong> — API keys are stored
+              server-side in Vercel Serverless Functions. The browser
+              never sees them.
+            </li>
+            <li>
               <strong>Edge CDN cache</strong> — API responses are cached at
-              Vercel's Edge with <code>s-maxage=60</code> and
-              <code>stale-while-revalidate=300</code>, so channel switches are
-              nearly instant for popular queries.
+              Vercel's Edge with <code>s-maxage=300</code> and
+              <code>stale-while-revalidate=600</code>.
             </li>
             <li>
-              <strong>Client LRU cache</strong> — the browser keeps up to 80
-              query results in memory with a 60-second TTL, keyed by
-              <code>endpoint:query:timespan</code>. Switching channels no longer
-              clears the cache — each combination is kept independently and
-              evicted by LRU.
+              <strong>localStorage cache</strong> — the browser stores the
+              last successful result per channel + time window with a
+              30-minute TTL.
             </li>
             <li>
-              <strong>GDELT cadence</strong> — GDELT itself updates roughly
-              every 15 minutes, so identical queries may return the same data
-              within that interval.
+              <strong>Story page</strong> — uses pre-built static data
+              (bundled at build time). Zero API dependency.
             </li>
           </ul>
         </section>
@@ -125,21 +142,26 @@ export function About() {
           <h2>Limitations &amp; Caveats</h2>
           <ul className="about-list">
             <li>
-              <strong>Geocoding accuracy</strong> — GDELT assigns locations via
-              NLP; some points may be mis-placed or refer to a country centroid
-              rather than a precise city.
+              <strong>Geocoding accuracy</strong> — for non-GDELT sources,
+              locations are extracted from article titles and country tags
+              using a built-in dictionary. Some points may be approximate.
             </li>
             <li>
               <strong>Coverage bias</strong> — English-language and Western
-              media are over-represented in the dataset.
+              media are over-represented across all data sources.
             </li>
             <li>
               <strong>Volume ≠ importance</strong> — a high article count does
               not necessarily mean the event is more significant.
             </li>
             <li>
-              <strong>Rate limits</strong> — GDELT APIs are free but may
+              <strong>Rate limits</strong> — NewsData.io free tier allows
+              200 credits/day. The Guardian is more generous but may
               throttle under heavy usage.
+            </li>
+            <li>
+              <strong>Demo data</strong> — when all APIs are unreachable,
+              demo articles use real but older news links (2023–2024).
             </li>
           </ul>
         </section>

@@ -1,6 +1,8 @@
-# FluxMap вЂ” News Heatmap (Real-time News Radar)
+# FluxMap вЂ” Real-time News Heatmap
 
-FluxMap is a sophisticated, product-style news heatmap that turns the global firehose of media into a living map. It pulls geo-tagged media mentions from the GDELT Project, clusters them by location and topic, and renders the result as an interactive deck.gl + MapLibre visualization with linked views for trends, top locations, and article evidence.
+FluxMap turns the global firehose of news media into a living, interactive map. It pulls articles from multiple news APIs, geocodes them, and renders the result as a deck.gl + MapLibre heatmap with linked views for trends, top locations, and article evidence.
+
+A **multi-source provider chain** (NewsData.io в†’ Guardian в†’ GDELT в†’ cache в†’ demo) ensures resilient data delivery вЂ” if one source is down, the next one takes over automatically.
 
 Built for **VDES 39915 вЂ” Visualizing Information: Dynamic Data Models (Project 2)** at Sheridan College.
 
@@ -8,182 +10,87 @@ Built for **VDES 39915 вЂ” Visualizing Information: Dynamic Data Models (Project
 
 ## What it does
 
-FluxMap answers one simple question in a visually rich way:
+FluxMap answers one question in a visually rich way:
 
-**вЂњWhere is the worldвЂ™s news happening right now вЂ” and how is it changing over time?вЂќ**
+**"Where is the world's news happening right now вЂ” and how is it changing over time?"**
 
-It does this using:
-
-* A **global heatmap + event dots** map view
-* A **trend sparkline** (timeline volume)
-* A **top locations list** (with mini bars)
-* An **article evidence panel** (source, time, thumbnail, headline)
+* A **global heatmap + event dots** map view (deck.gl)
+* A **trend sparkline** showing volume over time
+* A **top locations** ranked list with mini bars
+* An **article evidence** panel with headlines, sources, and thumbnails
 
 ---
 
 ## Features
 
-### Time window switching
-
-Switch between multiple time windows to see how attention shifts:
-
-* **15 min**
-* **1 hr**
-* **6 hr**
-* **24 hr**
-* **7 day** (included in the current build)
-
-### Multi-view linking
-
-All views are linked to the same state (channel, time window, keyword search):
-
-* **Map**: deck.gl HeatmapLayer + ScatterplotLayer over MapLibre basemap
-* **Trend**: DOC 2.0 TimelineVol rendered as an SVG sparkline
-* **Top Locations**: ranked list with small bar indicators
-* **Articles**: DOC 2.0 ArtList вЂњevidenceвЂќ cards (title, source, image when available)
-
-### Auto-refresh + Last updated
-
-* Explore page automatically refreshes data every **60 seconds**
-* A **Last Updated** indicator shows the most recent refresh timestamp
-
-### Story mode (scrollytelling)
-
-A narrative **Story** page uses scrollama-driven steps to:
-
-* switch channel/time window
-* re-query data
-* guide the viewer through different вЂњworld lensesвЂќ (e.g., protests, disasters, cyber)
-
-### Map layer controls
-
-A compact вљ™ panel (top-left) allows:
-
-* toggle **heatmap** / **scatter dots**
-* choose heatmap palettes (Channel / Thermal / Green / Plasma)
-* adjust **radius** and **intensity** sliders
-
-### Dark / light mode friendly UI
-
-* UI elements adapt via CSS variables
-* tooltips and controls adapt automatically
+| Feature | Details |
+|---|---|
+| **Time windows** | 15 min В· 1 hr В· 6 hr В· 24 hr В· 7 day |
+| **Multi-view linking** | Map, trend, top-list, and articles all tied to the same state |
+| **Auto-refresh** | Explore page re-fetches every 60 s with a Last Updated indicator |
+| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Srovider chain guarantees data on every load |
+| **Dark / light UI** | CSS-variableвЂ“driven theme adaptation |
 
 ---
 
-## Pages
-
-1. **Story** вЂ” scrollytelling experience (react-scrollama)
+###############Story** вЂ” scrollytelling guided tour (static data, zero API dependency)
 2. **Explore** вЂ” main interactive dashboard (linked views + auto-refresh)
-3. **About** вЂ” methods & transparency (data source, cadence, limitations, tech stack)
+3. **About** вЂ” methods, data sources, limitations, and tech stack
 
 ---
 
-## Data source
+## Data sources (provider ch## Data sources (provider ch## Data sourcestil on## Data sources (provider ch## Data sources (provider ch## Data source*NewsDat## Data sLate## Data sources (proca## Data il## Data sources (provider ch## Data sources (provider ch## h across Guardian content |
+| 3 | **GDELT Project** | Geo-coded media mentions (GEO 2.0 + DOC 2.0) |
+| 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStoragd G| 4 | **localStorage cache** | 30-minute TTL; serves stale d~150+ citie| 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 aching
 
-FluxMap uses the **GDELT Project** (public APIs; no account required). Two endpoints power the app:
+* **Auto-refresh**: Explore page re-fetches every 60 seconds
+* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` f 7* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxain* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` f 7* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxain* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=/
+ввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaвввввввввввввввввввввввввввввв
 
-* **GEO 2.0 API**: geo-coded mention points returned as GeoJSON
-  Each point represents a location referenced in matching news coverage, often with a **count**.
-
-* **DOC 2.0 API**:
-
-  * **ArtList** for article evidence cards
-  * **TimelineVol** for the trend sparkline
-
-Notes:
-
-* GDELT updates frequently (often around ~15-minute cycles depending on collections).
-* Geo-coding is NLP-based: some points can be imprecise (centroids, ambiguous place names).
-* Volume в‰  importance: high counts can reflect coverage density, not event severity.
-
----
-
-## Refresh cycle & caching
-
-* **Explore auto-refresh** re-fetches data every **60 seconds**
-* The data layer includes caching to avoid redundant network work when switching quickly
-* DOC timeline requests are paced to avoid throttling (with retry if empty results occur)
-
-If youвЂ™re deploying on Vercel, the recommended вЂњproductвЂќ approach is:
-
-* use `/api` serverless endpoints as a proxy
-* set `Cache-Control` headers for edge caching (fast switches + fewer upstream hits)
-
----
-
-## Tech stack
-
-* **Frontend**: React + TypeScript + Vite
-* **Mapping**: deck.gl + MapLibre GL
-* **State**: Zustand
-* **Routing**: React Router
-* **Scrollytelling**: react-scrollama
-* **Styling**: plain CSS (component-scoped files)
-
----
-
-## Project structure
-
-```
-FluxMap/
-в”њв”Ђв”Ђ src/
-в”‚   в”њв”Ђв”Ђ components/          # reusable UI + visualization components
-в”‚   в”њв”Ђв”Ђ pages/               # Story / Explore / About
-в”‚   в”њв”Ђв”Ђ data/                # channels + GDELT API wrappers
-в”‚   в”њв”Ђв”Ђ store.ts             # global state + refresh orchestration (Zustand)
-в”‚   в”њв”Ђв”Ђ types.ts             # core types (GeoFeature, GdeltArticle, TimelinePoint...)
-в”‚   в”њв”Ђв”Ђ App.tsx              # routes + app-level wiring
-в”‚   в””в”Ђв”Ђ main.tsx             # entry
-в”њв”Ђв”Ђ public/
-в”њв”Ђв”Ђ vite.config.ts
-в”њв”Ђв”Ђ package.json
-в””в”Ђв”Ђ README.md
-```
-
----
-
-## Getting started
-
-Install dependencies:
+)### Install
 
 ```bash
 npm install
 ```
 
-Run dev server:
+### Environment variables
 
-```bash
-npm run dev
+Create a `.env.local` file in the project root (**do not** use the `VITE_` prefix вЂ” keys must stay server-side):
+
+```env
+NEWSDATA_API_KEY=your_newsdata_api_key
+GUARDIAN_API_KEY=your_guardian_api_key
 ```
 
-Open:
+> **Important**: These keys are only read by the serverless functions in `/api/`. They are never bundled into the browser build.
 
-* [http://localhost:5173/](http://localhost:5173/)
+### Local development
 
-Build for production:
+Use `vercel dev` (not `npm run dev`) so the serverless proxy functions work locally:
+
+```bash
+vercel dev
+```
+
+This starts the Vite dev server **and** the `/api/*` serverless functions. Open [http://localhost:3000](http://localhost:3000).
+
+> `npm run dev` still works for front-end-only development, but API proxy calls will fail and the app will fall through to cache / demo data.
+
+### Build for production
 
 ```bash
 npm run build
-```
-
-Preview the production build:
-
-```bash
-npm run preview
 ```
 
 ---
 
 ## Deployment (Vercel)
 
-Recommended:
-
 1. Push to GitHub
 2. Import the repo in Vercel
-3. Build command: `npm run build`
-4. Output directory: `dist`
-
-If youвЂ™re using serverless API routes for proxy/caching, keep them under `/api` in the repo so Vercel deploys them automatically.
+3. Add environment variables in Vercel dashboard:
+   * `NEWSDATA_API_KEY`
+   * `GUARDIAN_   * `GUAR. Build command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Build command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Builn tim  uts and URL rewrites.
 
 ---
 
@@ -191,19 +98,8 @@ If youвЂ™re using serverless API routes for proxy/caching, keep them under `/api
 
 * Chrome / Edge (recommended)
 * Firefox
-* Safari
-  Requires **WebGL** support.
-
----
-
-## License
-
-MIT
-
----
-
-## Credits
-
-Built for **VDES 39915** (Sheridan College).
-Powered by **GDELT** (public data). Basemap by **MapLibre + OpenStreetMap contributors**.
-Made by Antirender
+* Firefox
+ Edge (recommended)
+ld command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Build command).
+Data poData poData poData pio*Data poData poData poData pio*Data poData poData poData pio*Data poData poData poDaors**.
+MadeMadeMaderender

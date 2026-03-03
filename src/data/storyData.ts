@@ -80,16 +80,16 @@ const allGeo: GeoFeature[] = [
 ];
 
 const allArticles: GdeltArticle[] = [
-  art('Global leaders convene emergency summit on climate action plan', 'reuters.com', 'United States', 'https://reuters.com/world/climate-summit-2026', '20260303T060000Z'),
-  art('Stock markets rally across Asia on positive economic data', 'bbc.com', 'United Kingdom', 'https://bbc.com/business/markets-rally', '20260303T053000Z'),
-  art('European Union proposes sweeping AI regulation framework', 'theguardian.com', 'United Kingdom', 'https://theguardian.com/tech/eu-ai-regulation', '20260303T050000Z'),
-  art('NASA announces updated timeline for crewed Mars mission', 'nytimes.com', 'United States', 'https://nytimes.com/science/mars-mission', '20260303T044500Z'),
-  art('Healthcare reform bill advances through key committee vote', 'washingtonpost.com', 'United States', 'https://washingtonpost.com/politics/healthcare', '20260303T040000Z'),
-  art('Tech giants report record quarterly earnings amid AI boom', 'cnbc.com', 'United States', 'https://cnbc.com/earnings/tech-q4', '20260303T034500Z'),
-  art('Renewable energy investment hits $500 billion globally', 'ft.com', 'United Kingdom', 'https://ft.com/energy/renewables-record', '20260303T030000Z'),
-  art('Trade talks resume as tariff tensions ease between powers', 'aljazeera.com', 'Qatar', 'https://aljazeera.com/economy/trade-talks', '20260303T023000Z'),
-  art('Breakthrough in quantum computing achieved by research team', 'nature.com', 'United Kingdom', 'https://nature.com/articles/quantum-computing', '20260303T020000Z'),
-  art('Global shipping disruptions continue amid regional tensions', 'bloomberg.com', 'United States', 'https://bloomberg.com/shipping-disruptions', '20260303T013000Z'),
+  art('NASA Analysis Confirms 2023 as Warmest Year on Record', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasa-analysis-confirms-2023-as-warmest-year-on-record/', '20240111T000000Z'),
+  art('2023 was the world\'s warmest year on record, by far', 'noaa.gov', 'United States', 'https://www.noaa.gov/news/2023-was-worlds-warmest-year-on-record-by-far', '20240112T000000Z'),
+  art('World had warmest January on record', 'wmo.int', 'Switzerland', 'https://wmo.int/media/news/world-had-warmest-january-record', '20240215T000000Z'),
+  art('Security Council demands immediate ceasefire in Gaza', 'un.org', 'United States', 'https://press.un.org/en/2024/sc15641.doc.htm', '20240325T000000Z'),
+  art('WHO Director-General: end of COVID-19 as a global health emergency', 'who.int', 'Switzerland', 'https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---5-may-2023', '20230505T000000Z'),
+  art('NASA\'s Bennu Asteroid Sample Contains Carbon, Water', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasas-bennu-asteroid-sample-contains-carbon-water/', '20231011T000000Z'),
+  art('Chandrayaan-3 — India\'s moon landing mission', 'isro.gov.in', 'India', 'https://www.isro.gov.in/Chandrayaan3.html', '20230823T000000Z'),
+  art('A/RES/78/265 — AI systems for sustainable development', 'un.org', 'United States', 'https://docs.un.org/en/A/res/78/265', '20240401T000000Z'),
+  art('Touch down — asteroid Bennu sample lands on Earth', 'canada.ca', 'Canada', 'https://www.canada.ca/en/space-agency/news/2023/09/touch-down---asteroid-bennu-sample-successfully-lands-on-earth.html', '20230924T000000Z'),
+  art('NASA\'s First Asteroid Sample Has Landed', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasas-first-asteroid-sample-has-landed-now-secure-in-clean-room/', '20230924T000000Z'),
 ];
 
 const allTimeline: TimelinePoint[] = [
@@ -152,13 +152,13 @@ const protestGeo: GeoFeature[] = [
 ];
 
 const protestArticles: GdeltArticle[] = [
-  art('Thousands rally in Paris over pension reform proposals', 'reuters.com', 'France', 'https://reuters.com/world/paris-pension-protest', '20260303T055000Z'),
-  art('Anti-government protests escalate across multiple Turkish cities', 'bbc.com', 'United Kingdom', 'https://bbc.com/news/turkey-protests', '20260303T050000Z'),
-  art('Student demonstrations sweep university campuses in India', 'theguardian.com', 'United Kingdom', 'https://theguardian.com/world/india-student-protests', '20260303T044000Z'),
-  art('Workers strike disrupts public transportation in São Paulo', 'aljazeera.com', 'Qatar', 'https://aljazeera.com/news/sao-paulo-strike', '20260303T040000Z'),
-  art('Police deploy tear gas as rally turns violent in Bangkok', 'apnews.com', 'United States', 'https://apnews.com/bangkok-rally-teargas', '20260303T034000Z'),
-  art('Thousands march through Berlin demanding climate action', 'dw.com', 'Germany', 'https://dw.com/en/berlin-climate-march', '20260303T030000Z'),
-  art('Union leaders call for nationwide workers march in Argentina', 'reuters.com', 'Argentina', 'https://reuters.com/world/argentina-union-march', '20260303T024000Z'),
+  art('Security Council demands immediate ceasefire in Gaza', 'un.org', 'United States', 'https://press.un.org/en/2024/sc15641.doc.htm', '20240325T000000Z'),
+  art('Death toll climbs as Cyclone Freddy slams Malawi, Mozambique', 'apnews.com', 'United States', 'https://apnews.com/article/cyclone-freddy-mozambique-malawi-disaster-774c2ecd3baad9eb29dc227a15bd8b30', '20230313T000000Z'),
+  art('WHO Director-General: end of COVID-19 as a global health emergency', 'who.int', 'Switzerland', 'https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---5-may-2023', '20230505T000000Z'),
+  art('A/RES/78/265 — AI systems for sustainable development', 'un.org', 'United States', 'https://docs.un.org/en/A/res/78/265', '20240401T000000Z'),
+  art('NASA Analysis Confirms 2023 as Warmest Year on Record', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasa-analysis-confirms-2023-as-warmest-year-on-record/', '20240111T000000Z'),
+  art('World had warmest January on record', 'wmo.int', 'Switzerland', 'https://wmo.int/media/news/world-had-warmest-january-record', '20240215T000000Z'),
+  art('2023 was the world\'s warmest year on record, by far', 'noaa.gov', 'United States', 'https://www.noaa.gov/news/2023-was-worlds-warmest-year-on-record-by-far', '20240112T000000Z'),
 ];
 
 const protestTimeline: TimelinePoint[] = [
@@ -205,12 +205,12 @@ const wildfireGeo: GeoFeature[] = [
 ];
 
 const wildfireArticles: GdeltArticle[] = [
-  art('Wildfire spreads across Southern California hillsides, evacuations ordered', 'latimes.com', 'United States', 'https://latimes.com/wildfire-socal', '20260303T054000Z'),
-  art('Firefighters battle unprecedented blazes in Australian bushland', 'abc.net.au', 'Australia', 'https://abc.net.au/news/bushfire-update', '20260303T045000Z'),
-  art('Greece evacuates coastal towns as wildfires advance on villages', 'reuters.com', 'Greece', 'https://reuters.com/world/greece-wildfires', '20260303T040000Z'),
-  art('Record temperatures fuel wildfire season across Western US', 'washingtonpost.com', 'United States', 'https://washingtonpost.com/climate/wildfires', '20260303T034000Z'),
-  art('Portugal declares state of emergency as forest fires intensify', 'bbc.com', 'Portugal', 'https://bbc.com/news/portugal-fires', '20260303T030000Z'),
-  art('Air quality warnings as wildfire smoke blankets major cities', 'cnn.com', 'United States', 'https://cnn.com/weather/smoke-warnings', '20260303T024000Z'),
+  art('Death toll from Maui wildfire reaches 89', 'apnews.com', 'United States', 'https://apnews.com/article/maui-hawaii-fires-lahaina-destruction-evacuation-38ec0d6a5c610035a0a72b804fcdffe0', '20230812T000000Z'),
+  art('Chile: Forest fire kills at least 46', 'apnews.com', 'Chile', 'https://apnews.com/article/chile-forest-fires-430181f95724369f805779010450ee5f', '20240204T000000Z'),
+  art('NASA Analysis Confirms 2023 as Warmest Year on Record', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasa-analysis-confirms-2023-as-warmest-year-on-record/', '20240111T000000Z'),
+  art('2023 was the world\'s warmest year on record, by far', 'noaa.gov', 'United States', 'https://www.noaa.gov/news/2023-was-worlds-warmest-year-on-record-by-far', '20240112T000000Z'),
+  art('World had warmest January on record', 'wmo.int', 'Switzerland', 'https://wmo.int/media/news/world-had-warmest-january-record', '20240215T000000Z'),
+  art('Death toll climbs as Cyclone Freddy slams Malawi, Mozambique', 'apnews.com', 'United States', 'https://apnews.com/article/cyclone-freddy-mozambique-malawi-disaster-774c2ecd3baad9eb29dc227a15bd8b30', '20230313T000000Z'),
 ];
 
 const wildfireTimeline: TimelinePoint[] = [
@@ -279,12 +279,12 @@ const cyberGeo: GeoFeature[] = [
 ];
 
 const cyberArticles: GdeltArticle[] = [
-  art('Major ransomware attack disrupts hospital systems across Europe', 'bbc.com', 'United Kingdom', 'https://bbc.com/news/cyber-hospital-attack', '20260303T052000Z'),
-  art('US government agencies report coordinated cyber intrusion', 'washingtonpost.com', 'United States', 'https://washingtonpost.com/cybersecurity/breach', '20260303T045000Z'),
-  art('Financial sector braces for escalating cyber threats in 2026', 'ft.com', 'United Kingdom', 'https://ft.com/cyber-threats-finance', '20260303T040000Z'),
-  art('South Korea strengthens cyber defenses after attack surge', 'reuters.com', 'South Korea', 'https://reuters.com/tech/korea-cyber-defense', '20260303T034000Z'),
-  art('Critical infrastructure vulnerability discovered in power grid software', 'wired.com', 'United States', 'https://wired.com/security/power-grid-vuln', '20260303T030000Z'),
-  art('International coalition announces joint cyber deterrence framework', 'apnews.com', 'United States', 'https://apnews.com/cyber-coalition', '20260303T024000Z'),
+  art('A/RES/78/265 — AI systems for sustainable development', 'un.org', 'United States', 'https://docs.un.org/en/A/res/78/265', '20240401T000000Z'),
+  art('NASA\'s Bennu Asteroid Sample Contains Carbon, Water', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasas-bennu-asteroid-sample-contains-carbon-water/', '20231011T000000Z'),
+  art('Chandrayaan-3 — India\'s moon landing mission', 'isro.gov.in', 'India', 'https://www.isro.gov.in/Chandrayaan3.html', '20230823T000000Z'),
+  art('NASA\'s First Asteroid Sample Has Landed', 'nasa.gov', 'United States', 'https://www.nasa.gov/news-release/nasas-first-asteroid-sample-has-landed-now-secure-in-clean-room/', '20230924T000000Z'),
+  art('Touch down — asteroid Bennu sample lands on Earth', 'canada.ca', 'Canada', 'https://www.canada.ca/en/space-agency/news/2023/09/touch-down---asteroid-bennu-sample-successfully-lands-on-earth.html', '20230924T000000Z'),
+  art('WHO Director-General: end of COVID-19 as a global health emergency', 'who.int', 'Switzerland', 'https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing---5-may-2023', '20230505T000000Z'),
 ];
 
 const cyberTimeline: TimelinePoint[] = [
