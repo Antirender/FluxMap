@@ -182,6 +182,7 @@ export function About() {
 
         <footer className="about-footer">
           <p>© 2026 FluxMap · Built for VDES 39915 at Sheridan College</p>
+          <p className="about-footer-credit">Made by antirender</p>
         </footer>
       </div>
     </div>

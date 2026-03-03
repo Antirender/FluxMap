@@ -2,7 +2,7 @@
 
 FluxMap turns the global firehose of news media into a living, interactive map. It pulls articles from multiple news APIs, geocodes them, and renders the result as a deck.gl + MapLibre heatmap with linked views for trends, top locations, and article evidence.
 
-A **multi-source provider chain** (NewsData.io в†’ Guardian в†’ GDELT в†’ cache в†’ demo) ensures resilient data delivery вЂ” if one source is down, the next one takes over automatically.
+A **multi-source provider chain** (NewsData.io в†’ Guardian в†’ GDELT в†’ cache в†’ demo) ensures resilient data delivery вЂ” if one source goes down, the next one takes over automatically. Users can also **pin a preferred source** via the toolbar's source switcher.
 
 Built for **VDES 39915 вЂ” Visualizing Information: Dynamic Data Models (Project 2)** at Sheridan College.
 
@@ -12,12 +12,12 @@ Built for **VDES 39915 вЂ” Visualizing Information: Dynamic Data Models (Project
 
 FluxMap answers one question in a visually rich way:
 
-**"Where is the world's news happening right now вЂ” and how is it changing over time?"**
+> **"Where is the world's news happening right now вЂ” and how is it changing over time?"**
 
-* A **global heatmap + event dots** map view (deck.gl)
-* A **trend sparkline** showing volume over time
-* A **top locations** ranked list with mini bars
-* An **article evidence** panel with headlines, sources, and thumbnails
+- A **global heatmap + event dots** map view powered by deck.gl
+- A **trend sparkline** showing article volume over the selected time window
+- A **top locations** ranked list with mini bar charts
+- An **article evidence** panel with headlines, sources, and thumbnails
 
 ---
 
@@ -25,29 +25,58 @@ FluxMap answers one question in a visually rich way:
 
 | Feature | Details |
 |---|---|
+| **8 topic channels** | Protest В· Wildfire В· Earthquake В· Flood В· Cyber В· Health В· Economy В· Elections |
 | **Time windows** | 15 min В· 1 hr В· 6 hr В· 24 hr В· 7 day |
-| **Multi-view linking** | Map, trend, top-list, and articles all tied to the same state |
+| **Free-text search** | Filter articles and map dots by any keyword |
+| **Multi-view linking** | Map, trend, top-list, and articles share the same state |
 | **Auto-refresh** | Explore page re-fetches every 60 s with a Last Updated indicator |
-| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Scrollytelling onboard| **Story mode** | Srovider chain guarantees data on every load |
-| **Dark / light UI** | CSS-variableвЂ“driven theme adaptation |
+| **Source switcher** | Pin a preferred data source вЂ” Auto / NewsData.io / Guardian / GDELT / Demo |
+| **Onboarding tour** | 5-step guided tour on first visit; re-launchable from the source menu |
+| **Story mode** | Scrollytelling narrative (static data, zero API dependency) |
+| **Multi-source resilience** | 5-layer provider chain guarantees data on every load |
+| **Dark / light UI** | CSS custom propertyвЂ“driven theme |
 
 ---
 
-###############Story** вЂ” scrollytelling guided tour (static data, zero API dependency)
-2. **Explore** вЂ” main interactive dashboard (linked views + auto-refresh)
-3. **About** вЂ” methods, data sources, limitations, and tech stack
+## Pages
+
+1. **Story** вЂ” scrollytelling guided tour of a live news event
+2. **Explore** вЂ” main interactive dashboard (linked views, auto-refresh, source switcher)
+3. **About** вЂ” data sources, methods, limitations, and tech stack
 
 ---
 
-## Data sources (provider ch## Data sources (provider ch## Data sourcestil on## Data sources (provider ch## Data sources (provider ch## Data source*NewsDat## Data sLate## Data sources (proca## Data il## Data sources (provider ch## Data sources (provider ch## h across Guardian content |
+## Data sources (provider chain)
+
+| Priority | Source | Notes |
+|---|---|---|
+| 1 | **NewsData.io** | Primary live source; 200 credits/day free tier |
+| 2 | **The Guardian** | Open Platform API; generous free tier |
 | 3 | **GDELT Project** | Geo-coded media mentions (GEO 2.0 + DOC 2.0) |
-| 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 | **localStoragd G| 4 | **localStorage cache** | 30-minute TTL; serves stale d~150+ citie| 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail | 4 aching
+| 4 | **localStorage cache** | 30-minute TTL; serves stale data when all APIs fail |
+| 5 | **Demo data** | Curated articles with real URLs; offline fallback |
 
-* **Auto-refresh**: Explore page re-fetches every 60 seconds
-* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` f 7* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxain* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=300` for * **Serverless proxies**: `/api/*` f 7* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxain* **Serverless proxies**: `/api/*` functions set `Cache-Control: s-maxage=/
-ввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaввввввввввввввввввввввввввввввввввввввввввввввввввввввввввввzaвввввввввввввввввввввввввввввв
+The automatic chain tries each source in order. Users can override it and pin any source via the **Source** button in the Explore toolbar.
 
-)### Install
+---
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19 В· TypeScript 5 В· Vite 7 |
+| Mapping | deck.gl 9 В· MapLibre GL 5 |
+| State | Zustand 5 |
+| Routing | React Router 7 |
+| Scrollytelling | react-scrollama |
+| Hosting | Vercel (Edge CDN + Serverless Functions) |
+| Styling | Plain CSS + CSS custom properties (dark / light) |
+
+---
+
+## Getting started
+
+### Install
 
 ```bash
 npm install
@@ -55,26 +84,26 @@ npm install
 
 ### Environment variables
 
-Create a `.env.local` file in the project root (**do not** use the `VITE_` prefix вЂ” keys must stay server-side):
+Create a `.env.local` file in the project root. **Do not** use the `VITE_` prefix вЂ” these keys must stay server-side:
 
 ```env
 NEWSDATA_API_KEY=your_newsdata_api_key
 GUARDIAN_API_KEY=your_guardian_api_key
 ```
 
-> **Important**: These keys are only read by the serverless functions in `/api/`. They are never bundled into the browser build.
+> Keys are only read by serverless functions in `/api/`. They are never bundled into the browser build.
 
 ### Local development
 
-Use `vercel dev` (not `npm run dev`) so the serverless proxy functions work locally:
+Use `vercel dev` so the serverless proxy functions work:
 
 ```bash
 vercel dev
 ```
 
-This starts the Vite dev server **and** the `/api/*` serverless functions. Open [http://localhost:3000](http://localhost:3000).
+Opens [http://localhost:3000](http://localhost:3000) with the Vite dev server **and** `/api/*` functions running side-by-side.
 
-> `npm run dev` still works for front-end-only development, but API proxy calls will fail and the app will fall through to cache / demo data.
+> `npm run dev` also works for front-endвЂ“only development, but API calls will fall through to cache / demo data.
 
 ### Build for production
 
@@ -87,19 +116,29 @@ npm run build
 ## Deployment (Vercel)
 
 1. Push to GitHub
-2. Import the repo in Vercel
-3. Add environment variables in Vercel dashboard:
-   * `NEWSDATA_API_KEY`
-   * `GUARDIAN_   * `GUAR. Build command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Build command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Builn tim  uts and URL rewrites.
+2. Import the repo in the Vercel dashboard
+3. Add environment variables:
+   - `NEWSDATA_API_KEY`
+   - `GUARDIAN_API_KEY`
+4. Build command: `npm run build` В· Output directory: `dist`
+5. `vercel.json` handles URL rewrites and cache headers automatically.
+
+---
+
+## Caching strategy
+
+| Layer | TTL / detail |
+|---|---|
+| Vercel Edge cache | `s-maxage=300, stale-while-revalidate=600` on all `/api/*` responses |
+| Browser localStorage | Per-channel + per-time-window cache with 30-minute TTL |
+| Story page | Fully static вЂ” bundled at build time, zero network calls |
 
 ---
 
 ## Browser support
 
-* Chrome / Edge (recommended)
-* Firefox
-* Firefox
- Edge (recommended)
-ld command: `npm run bu   * `GUARDIAN_   * `GUA: `   * `GUARDIAN_   * `GUAR. Build command).
-Data poData poData poData pio*Data poData poData poData pio*Data poData poData poData pio*Data poData poData poDaors**.
-MadeMadeMaderender
+Chrome / Edge В· Firefox В· Safari 17+
+
+---
+
+Made by **antirender** В· В© 2026 FluxMap В· VDES 39915 at Sheridan College
