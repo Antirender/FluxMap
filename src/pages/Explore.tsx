@@ -34,7 +34,7 @@ export function Explore() {
   const selectedLocation = useStore((s) => s.selectedLocation);
   const setSelectedLocation = useStore((s) => s.setSelectedLocation);
   const setSearchQuery = useStore((s) => s.setSearchQuery);
-  const isLoading = useStore((s) => s.isLoading);
+  const usingDemoData = useStore((s) => s.usingDemoData);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const hasFilters = !!selectedLocation || !!searchQuery;
@@ -59,6 +59,14 @@ export function Explore() {
 
   return (
     <div className="explore-page">
+      {/* Demo data banner */}
+      {usingDemoData && (
+        <div className="demo-banner">
+          ⚠️ GDELT API is currently unreachable — showing demo data.
+          The app will automatically switch to live data when the API recovers.
+        </div>
+      )}
+
       {/* toolbar */}
       <div className="explore-toolbar">
         <ChannelSelector />

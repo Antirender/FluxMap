@@ -18,7 +18,7 @@ const GEO_BASE = '/api/gdelt-geo';
 const DOC_BASE = '/api/gdelt-doc';
 
 /** Client-side fetch timeout (ms). Prevents UI from hanging. */
-const CLIENT_TIMEOUT = 12_000;
+const CLIENT_TIMEOUT = 20_000;
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                           */
@@ -66,8 +66,8 @@ export function timespanForGeo(window: TimeWindow): string {
 
 /** Client-side fetch timeout adapts to the window size */
 export function clientTimeout(window: TimeWindow): number {
-  return window === '7d' ? 25_000
-       : window === '24h' ? 18_000
+  return window === '7d' ? 35_000
+       : window === '24h' ? 28_000
        : CLIENT_TIMEOUT;
 }
 

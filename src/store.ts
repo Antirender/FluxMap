@@ -19,6 +19,12 @@ import {
   fetchTimeline,
   deriveTopLocations,
 } from './data/gdeltApi';
+import {
+  getDemoGeo,
+  getDemoArticles,
+  getDemoTimeline,
+  getDemoTopLocations,
+} from './data/demoData';
 
 /** Toast-style error that auto-dismisses */
 export interface AppError {
@@ -53,6 +59,7 @@ interface AppState {
   /* ---- UI state ---- */
   isLoading: boolean;
   lastUpdated: number;
+  usingDemoData: boolean;
   errors: AppError[];
   pushError: (msg: string) => void;
   dismissError: (id: number) => void;
@@ -95,6 +102,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   isLoading: false,
   lastUpdated: Date.now(),
+  usingDemoData: false,
 
   /* ---- error toasts ---- */
   errors: [],
@@ -129,32 +137,61 @@ export const useStore = create<AppState>((set, get) => ({
       const arts = artsResult.status === 'fulfilled' ? artsResult.value : [];
       const tl = tlResult.status === 'fulfilled' ? tlResult.value : [];
 
+      // Count how many actually returned data
+      const hasGeo = geo.length > 0;
+      const hasArts = arts.length > 0;
+      const hasTl = tl.length > 0;
+      const allEmpty = !hasGeo && !hasArts && !hasTl;
+
       // Report individual failures without crashing
       if (geoResult.status === 'rejected') {
         console.error('[FluxMap] GEO failed:', geoResult.reason);
-        pushError('Map data unavailable — retrying next cycle');
       }
       if (artsResult.status === 'rejected') {
         console.error('[FluxMap] Articles failed:', artsResult.reason);
-        pushError('Article list unavailable — retrying next cycle');
       }
       if (tlResult.status === 'rejected') {
         console.error('[FluxMap] Timeline failed:', tlResult.reason);
-        pushError('Trend chart unavailable — retrying next cycle');
       }
 
-      const topLocs = deriveTopLocations(geo, 10);
-
-      set({
-        geoFeatures: geo,
-        articles: arts,
-        timelineData: tl,
-        topLocations: topLocs,
-        lastUpdated: Date.now(),
-      });
+      // If all data is empty / failed, switch to demo data
+      if (allEmpty) {
+        console.warn('[FluxMap] All API calls returned empty — using demo data');
+        pushError('GDELT API is currently unreachable. Showing demo data.');
+        const chId = activeChannel.id;
+        set({
+          geoFeatures: getDemoGeo(chId),
+          articles: getDemoArticles(chId),
+          timelineData: getDemoTimeline(chId),
+          topLocations: getDemoTopLocations(chId, 10),
+          lastUpdated: Date.now(),
+          usingDemoData: true,
+        });
+      } else {
+        // Use whatever data we got (partial is fine)
+        const topLocs = deriveTopLocations(geo, 10);
+        set({
+          geoFeatures: geo,
+          articles: arts,
+          timelineData: tl,
+          topLocations: topLocs,
+          lastUpdated: Date.now(),
+          usingDemoData: false,
+        });
+      }
     } catch (err) {
       console.error('[FluxMap] refreshData failed:', err);
-      pushError('Data refresh failed — check your connection');
+      // Total crash — fall back to demo data
+      const chId = get().activeChannel.id;
+      pushError('Data refresh failed — showing demo data');
+      set({
+        geoFeatures: getDemoGeo(chId),
+        articles: getDemoArticles(chId),
+        timelineData: getDemoTimeline(chId),
+        topLocations: getDemoTopLocations(chId, 10),
+        lastUpdated: Date.now(),
+        usingDemoData: true,
+      });
     } finally {
       set({ isLoading: false });
     }

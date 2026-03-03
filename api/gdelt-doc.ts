@@ -1,20 +1,71 @@
 /**
  * Vercel Serverless Function – GDELT DOC 2.0 proxy
  *
- * Forwards requests to the GDELT DOC API and adds
- * Cache-Control headers so Vercel Edge caches the result.
- * Includes timeout + catch-all error handling to prevent 502s.
+ * Uses Node.js native http/https modules (NOT fetch/undici) because
+ * GDELT's server sometimes has SSL/TLS handshake issues that cause
+ * undici's fetch to fail entirely. We try HTTP first (fastest), then
+ * HTTPS as fallback, with retry logic.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import http from 'node:http';
+import https from 'node:https';
 
-const UPSTREAM = 'https://api.gdeltproject.org/api/v2/doc/doc';
+const UPSTREAM_HTTP  = 'http://api.gdeltproject.org/api/v2/doc/doc';
+const UPSTREAM_HTTPS = 'https://api.gdeltproject.org/api/v2/doc/doc';
 
-/** Pick timeout based on the timespan param — big windows need more time */
+/** Pick timeout based on the timespan param */
 function pickTimeout(qs: string): number {
-  if (qs.includes('timespan=7d') || qs.includes('timespan=1w')) return 22_000;
-  if (qs.includes('timespan=24h') || qs.includes('timespan=1440')) return 16_000;
-  return 12_000; // default for short windows
+  if (qs.includes('timespan=7d') || qs.includes('timespan=1w')) return 25_000;
+  if (qs.includes('timespan=24h')) return 20_000;
+  return 15_000;
+}
+
+/** Make a GET request using Node.js core http/https module */
+function httpGet(url: string, timeoutMs: number): Promise<{ status: number; body: string; contentType: string }> {
+  return new Promise((resolve, reject) => {
+    const mod = url.startsWith('https') ? https : http;
+    const req = mod.get(url, { timeout: timeoutMs, headers: { 'User-Agent': 'FluxMap/1.0' } }, (res) => {
+      const chunks: Buffer[] = [];
+      res.on('data', (chunk: Buffer) => chunks.push(chunk));
+      res.on('end', () => {
+        resolve({
+          status: res.statusCode ?? 500,
+          body: Buffer.concat(chunks).toString('utf-8'),
+          contentType: res.headers['content-type'] ?? 'application/json',
+        });
+      });
+      res.on('error', reject);
+    });
+    req.on('timeout', () => { req.destroy(); reject(new Error('TIMEOUT')); });
+    req.on('error', reject);
+  });
+}
+
+/** Try fetching with retries, HTTP first then HTTPS */
+async function fetchWithRetry(qs: string, timeoutMs: number) {
+  const urls = [
+    `${UPSTREAM_HTTP}?${qs}`,
+    `${UPSTREAM_HTTPS}?${qs}`,
+  ];
+
+  let lastErr: Error | null = null;
+
+  for (const url of urls) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        console.log(`[gdelt-doc] attempt ${attempt + 1} → ${url.slice(0, 60)}…`);
+        return await httpGet(url, timeoutMs);
+      } catch (e) {
+        lastErr = e instanceof Error ? e : new Error(String(e));
+        console.warn(`[gdelt-doc] attempt ${attempt + 1} failed:`, lastErr.message);
+        // small backoff before retry
+        if (attempt === 0) await new Promise(r => setTimeout(r, 500));
+      }
+    }
+  }
+
+  throw lastErr ?? new Error('All fetch attempts failed');
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -26,46 +77,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const qs = new URLSearchParams(req.query as Record<string, string>).toString();
-  const url = `${UPSTREAM}?${qs}`;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), pickTimeout(qs));
 
   try {
-    const upstream = await fetch(url, {
-      headers: { 'User-Agent': 'FluxMap/1.0 (Vercel Serverless)' },
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
+    const result = await fetchWithRetry(qs, pickTimeout(qs));
 
-    const body = await upstream.text();
-    const ct = upstream.headers.get('content-type') ?? 'application/json';
-    res.setHeader('Content-Type', ct);
+    res.setHeader('Content-Type', result.contentType);
+    res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=600');
 
-    // CDN cache: 90 s fresh, serve stale up to 10 min while revalidating
-    res.setHeader(
-      'Cache-Control',
-      'public, s-maxage=90, stale-while-revalidate=600',
-    );
-
-    return res.status(upstream.status).send(body);
+    return res.status(result.status).send(result.body);
   } catch (err: unknown) {
-    clearTimeout(timer);
-    const isTimeout =
-      err instanceof Error &&
-      (err.name === 'AbortError' || err.message.includes('abort'));
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[gdelt-doc] all attempts failed:', msg);
 
-    console.error('[gdelt-doc]', isTimeout ? 'TIMEOUT' : err);
-
-    if (isTimeout) {
-      return res.status(504).json({
-        error: 'Upstream timeout',
-        message: 'GDELT did not respond in time. Try a shorter time window.',
-      });
-    }
     return res.status(502).json({
-      error: 'Upstream request failed',
-      message: err instanceof Error ? err.message : 'Unknown error',
+      error: 'GDELT API unreachable',
+      message: msg,
+      hint: 'The GDELT API server may be temporarily down. Try again in a few minutes.',
     });
   }
 }
