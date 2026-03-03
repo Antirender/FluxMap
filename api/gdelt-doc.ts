@@ -9,7 +9,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const UPSTREAM = 'https://api.gdeltproject.org/api/v2/doc/doc';
-const TIMEOUT_MS = 8_000; // 8 s upstream timeout (Vercel free-tier cap = 10 s)
+
+/** Pick timeout based on the timespan param — big windows need more time */
+function pickTimeout(qs: string): number {
+  if (qs.includes('timespan=7d') || qs.includes('timespan=1w')) return 22_000;
+  if (qs.includes('timespan=24h') || qs.includes('timespan=1440')) return 16_000;
+  return 12_000; // default for short windows
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
@@ -23,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = `${UPSTREAM}?${qs}`;
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), pickTimeout(qs));
 
   try {
     const upstream = await fetch(url, {

@@ -4,8 +4,8 @@
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "functions": {
-    "api/gdelt-doc.ts": { "maxDuration": 10 },
-    "api/gdelt-geo.ts": { "maxDuration": 10 }
+    "api/gdelt-doc.ts": { "maxDuration": 25 },
+    "api/gdelt-geo.ts": { "maxDuration": 25 }
   },
   "headers": [
     {

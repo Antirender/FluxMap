@@ -36,16 +36,39 @@ async function fetchWithTimeout(url: string, timeoutMs = CLIENT_TIMEOUT): Promis
   }
 }
 
-/** Convert UI time-window to GDELT timespan string */
-export function timespanFromWindow(window: TimeWindow): string {
+/** Convert UI time-window to GDELT-recognized timespan strings.
+ *  DOC API: numeric minutes (15, 60, …) or TIMESPAN: format
+ *  GEO API: numeric minutes (15–1440) or Xh / Xd / Xw
+ *  We return separate values for DOC vs GEO because their accepted
+ *  formats differ slightly.
+ */
+export function timespanForDoc(window: TimeWindow): string {
   const map: Record<TimeWindow, string> = {
     '15m': '15min',
-    '1h':  '60min',
-    '6h':  '360min',
-    '24h': '1440min',
-    '7d':  '7days',
+    '1h':  '1h',
+    '6h':  '6h',
+    '24h': '24h',
+    '7d':  '7d',
   };
   return map[window];
+}
+
+export function timespanForGeo(window: TimeWindow): string {
+  const map: Record<TimeWindow, string> = {
+    '15m': '15min',
+    '1h':  '1h',
+    '6h':  '6h',
+    '24h': '24h',
+    '7d':  '1w',
+  };
+  return map[window];
+}
+
+/** Client-side fetch timeout adapts to the window size */
+export function clientTimeout(window: TimeWindow): number {
+  return window === '7d' ? 25_000
+       : window === '24h' ? 18_000
+       : CLIENT_TIMEOUT;
 }
 
 /** Build the full query – combines channel query + optional search term */
@@ -118,16 +141,16 @@ export async function fetchGeoData(
   search?: string,
 ): Promise<GeoFeature[]> {
   const query = buildQuery(channelQuery, search);
-  const ts = timespanFromWindow(timeWindow);
+  const ts = timespanForGeo(timeWindow);
   const cacheKey = `geo:${query}:${ts}`;
 
   const hit = cached<GeoFeature[]>(cacheKey);
   if (hit) return hit;
 
-  const url = `${GEO_BASE}?query=${encodeURIComponent(query)}&mode=PointData&format=GeoJSON&timespan=${ts}`;
+  const url = `${GEO_BASE}?query=${encodeURIComponent(query)}&mode=PointHeatmap&format=GeoJSON&timespan=${ts}`;
 
   try {
-    const res = await fetchWithTimeout(url);
+    const res = await fetchWithTimeout(url, clientTimeout(timeWindow));
     if (!res.ok) throw new Error(`GEO API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
@@ -178,7 +201,7 @@ export async function fetchArticles(
   maxRecords = 25,
 ): Promise<GdeltArticle[]> {
   const query = buildQuery(channelQuery, search);
-  const ts = timespanFromWindow(timeWindow);
+  const ts = timespanForDoc(timeWindow);
   const cacheKey = `doc:${query}:${ts}:${maxRecords}`;
 
   const hit = cached<GdeltArticle[]>(cacheKey);
@@ -186,11 +209,11 @@ export async function fetchArticles(
 
   const url =
     `${DOC_BASE}?query=${encodeURIComponent(query)}` +
-    `&mode=ArtList&format=json&timespan=${ts}` +
-    `&maxrecords=${maxRecords}&sort=DateDesc`;
+    `&mode=artlist&format=json&timespan=${ts}` +
+    `&maxrecords=${maxRecords}&sort=datedesc`;
 
   try {
-    const res = await fetchWithTimeout(url);
+    const res = await fetchWithTimeout(url, clientTimeout(timeWindow));
     if (!res.ok) throw new Error(`DOC API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{')) {
@@ -245,7 +268,7 @@ export async function fetchTimeline(
   search?: string,
 ): Promise<TimelinePoint[]> {
   const query = buildQuery(channelQuery, search);
-  const ts = timespanFromWindow(timeWindow);
+  const ts = timespanForDoc(timeWindow);
   const cacheKey = `timeline:${query}:${ts}`;
 
   const hit = cached<TimelinePoint[]>(cacheKey);
@@ -253,10 +276,10 @@ export async function fetchTimeline(
 
   const url =
     `${DOC_BASE}?query=${encodeURIComponent(query)}` +
-    `&mode=TimelineVol&format=json&timespan=${ts}`;
+    `&mode=timelinevol&format=json&timespan=${ts}`;
 
   try {
-    const res = await fetchWithTimeout(url);
+    const res = await fetchWithTimeout(url, clientTimeout(timeWindow));
     if (!res.ok) throw new Error(`DOC Timeline API ${res.status}`);
     const text = await res.text();
     if (!text.trim().startsWith('{')) {

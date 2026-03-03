@@ -123,15 +123,32 @@
   }
 
   .explore-grid {
+    grid-template-columns: 1fr;
     grid-template-rows: 40vh auto auto auto;
+    overflow-y: auto;
+  }
+
+  .explore-map {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+    min-height: 250px;
   }
 
   .explore-sidebar {
+    grid-column: 1 / -1;
+    grid-row: 2 / 3;
     flex-direction: column;
   }
 
   .explore-sidebar > .explore-panel {
-    min-height: 180px;
+    min-height: 160px;
+  }
+
+  .explore-articles {
+    grid-column: 1 / -1;
+    grid-row: 3 / 4;
+    min-height: 220px;
+    overflow-y: auto;
   }
 
   .channel-selector {
@@ -139,6 +156,10 @@
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
+  }
+
+  .explore-legend {
+    display: none; /* too crowded on small screens */
   }
 }
 
